@@ -1,4 +1,4 @@
-using NumSharp;
+using Numpy;
 
 namespace NumSharpNetwork.Shared.Networks
 {
@@ -8,9 +8,9 @@ namespace NumSharpNetwork.Shared.Networks
         bool IsTrainMode { get; set; }
 
         // feedforward
-        NDArray FeedForward(NDArray input);
+        NDarray FeedForward(NDarray input);
         // backpropagation
-        NDArray BackPropagate(NDArray resultLossGradient);
+        NDarray BackPropagate(NDarray resultLossGradient);
         // save necessary state on disk
         void Save(string folderPath);
         // load state on disk if file exists

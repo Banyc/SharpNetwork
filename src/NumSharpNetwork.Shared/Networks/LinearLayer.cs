@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using NumSharp;
+using Numpy;
 using NumSharpNetwork.Shared.Optimizers;
 
 namespace NumSharpNetwork.Shared.Networks
@@ -10,11 +10,11 @@ namespace NumSharpNetwork.Shared.Networks
     public class LinearLayerRecord
     {
         // Input.shape := [batchSize, inputSize]
-        public NDArray Input { get; set; }
+        public NDarray Input { get; set; }
         // Weight.shape := [batchSize, outputSize]
-        public NDArray Weights { get; set; }
+        public NDarray Weights { get; set; }
         // ForwardResult.shape := [batchSize, outputSize]
-        public NDArray ForwardResult { get; set; }
+        public NDarray ForwardResult { get; set; }
     }
 
     public class LinearLayer : ILayer
@@ -22,9 +22,9 @@ namespace NumSharpNetwork.Shared.Networks
         public string Name { get; set; }
         public bool IsTrainMode { get; set; } = true;
         // Weights.shape := [inputSize, outputSize]
-        public NDArray Weights { get; set; }
+        public NDarray Weights { get; set; }
         // Biases.shape := [outputSize]
-        public NDArray Biases { get; set; }
+        public NDarray Biases { get; set; }
         public IOptimizer Optimizer { get; set; }
 
         // number of nodes connecting to a node in this layer
@@ -51,26 +51,27 @@ namespace NumSharpNetwork.Shared.Networks
         // result := output from the previous feedforward
         // lossResultGradient.shape := [batchSize, outputSize]
         // return d_loss / d_input
-        public NDArray BackPropagate(NDArray lossResultGradient)
+        public NDarray BackPropagate(NDarray lossResultGradient)
         {
             // lossBiasesGradient.shape := [outputSize]
-            NDArray lossBiasesGradient = np.sum(lossResultGradient, 0);
+            NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
             // lossWeightsGradient.shape := [inputSize, outputSize]
-            NDArray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
+            NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
             // lossInputGradient.shape := [batchSize, inputSize]
-            NDArray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
+            NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
 
             this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient, isRegularization: false);
-            this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isRegularization: true);
+            // this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isRegularization: true);
+            this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isRegularization: false);
 
             return lossInputGradient;
         }
 
         // input := the output from the previous nodes
         // input.size := [batchSize, outputSize]
-        public NDArray FeedForward(NDArray input)
+        public NDarray FeedForward(NDarray input)
         {
-            NDArray result = np.matmul(input, this.Weights) + this.Biases;
+            NDarray result = np.matmul(input, this.Weights) + this.Biases;
 
             this.Record.Input = input;
             this.Record.ForwardResult = result;
@@ -83,25 +84,25 @@ namespace NumSharpNetwork.Shared.Networks
         {
             Directory.CreateDirectory(folderPath);
             string statePath = Path.Combine(folderPath, $"{this.Name}.npy");
-            Dictionary<string, Array> state = new Dictionary<string, Array>
-            {
-                ["weights"] = (Array)this.Weights,
-                ["biases"] = (Array)this.Biases
-            };
-            np.Save_Npz(state, statePath);
+            np.save($"{statePath}.weights.npy", this.Weights);
+            np.save($"{statePath}.biases.npy", this.Biases);
+            // np.savez(statePath, new NDarray[]{this.Weights, this.Biases});
         }
 
         public void Load(string folderPath)
         {
             Directory.CreateDirectory(folderPath);
             string statePath = Path.Combine(folderPath, $"{this.Name}.npy");
-            if (!File.Exists(statePath))
+            string weightPath = $"{statePath}.weights.npy";
+            string biasesPath = $"{statePath}.biases.npy";
+            if (File.Exists(weightPath))
             {
-                return;
+                this.Weights = np.load(weightPath);
             }
-            NpzDictionary<Array> loadedState = np.Load_Npz<Array>(statePath);
-            this.Weights = loadedState["weights"];
-            this.Biases = loadedState["biases"];
+            if (File.Exists(biasesPath))
+            {
+                this.Biases = np.load(biasesPath);
+            }
         }
     }
 }

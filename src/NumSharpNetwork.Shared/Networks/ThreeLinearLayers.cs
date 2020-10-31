@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
-using NumSharp;
+using Numpy;
 using NumSharpNetwork.Shared.Optimizers;
 
 namespace NumSharpNetwork.Shared.Networks
@@ -28,7 +28,7 @@ namespace NumSharpNetwork.Shared.Networks
         {
             BasicOptimizer optimizer1 = new BasicOptimizer()
             {
-                LearningRate = 0.1
+                LearningRate = np.asarray(0.1)
             };
             LinearLayer layer1 = new LinearLayer(optimizer1, 10, 1000)
             {
@@ -36,7 +36,7 @@ namespace NumSharpNetwork.Shared.Networks
             };
             BasicOptimizer optimizer2 = new BasicOptimizer()
             {
-                LearningRate = 0.1
+                LearningRate = np.asarray(0.1)
             };
             LinearLayer layer2 = new LinearLayer(optimizer2, 1000, 500)
             {
@@ -44,7 +44,7 @@ namespace NumSharpNetwork.Shared.Networks
             };
             BasicOptimizer optimizer3 = new BasicOptimizer()
             {
-                LearningRate = 0.1
+                LearningRate = np.asarray(0.1)
             };
             LinearLayer layer3 = new LinearLayer(optimizer3, 500, 1)
             {
@@ -55,9 +55,9 @@ namespace NumSharpNetwork.Shared.Networks
             this.Layers.Add(layer3);
         }
 
-        public NDArray FeedForward(NDArray input)
+        public NDarray FeedForward(NDarray input)
         {
-            NDArray result = input;
+            NDarray result = input;
             foreach (ILayer layer in this.Layers)
             {
                 result = layer.FeedForward(result);
@@ -65,9 +65,9 @@ namespace NumSharpNetwork.Shared.Networks
             return result;
         }
 
-        public NDArray BackPropagate(NDArray resultLossGradient)
+        public NDarray BackPropagate(NDarray resultLossGradient)
         {
-            NDArray result = resultLossGradient;
+            NDarray result = resultLossGradient;
             int i;
             for (i = this.Layers.Count - 1; i >= 0; i--)
             {

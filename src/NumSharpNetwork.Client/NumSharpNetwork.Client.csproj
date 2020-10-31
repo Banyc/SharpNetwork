@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NumSharp" Version="0.20.5" />
+    <ProjectReference Include="..\NumSharpNetwork.Shared\NumSharpNetwork.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NumSharpNetwork.Shared\NumSharpNetwork.Shared.csproj" />
+    <PackageReference Include="Numpy" Version="3.7.1.23" />
   </ItemGroup>
 
 </Project>

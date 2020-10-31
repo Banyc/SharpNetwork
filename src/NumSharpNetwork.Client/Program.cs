@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using NumSharp;
+using Numpy;
 using NumSharpNetwork.Shared.Networks;
 
 namespace NumSharpNetwork.Client
@@ -11,7 +11,7 @@ namespace NumSharpNetwork.Client
         static void Main(string[] args)
         {
             // a hidden set of weights that is used to generate dataset
-            NDArray weights = np.random.randn(10);
+            NDarray weights = np.random.randn(10);
             const int batchSize = 200;
 
             ThreeLinearLayers layers = new ThreeLinearLayers();
@@ -20,43 +20,51 @@ namespace NumSharpNetwork.Client
             Train(layers, batchSize, weights, statePath);
         }
 
-        static Dictionary<string, Array> LoadState(string folderPath)
+        static Dictionary<string, NDarray> LoadState(string folderPath)
         {
             Directory.CreateDirectory(folderPath);
             string statePath = Path.Combine(folderPath, $"test1.npy");
-            if (!File.Exists(statePath))
+            Dictionary<string, NDarray> stateDict = new Dictionary<string, NDarray>();
+
+            if (File.Exists($"{statePath}.weights.npy"))
             {
-                return new Dictionary<string, Array>();
+                stateDict["weights"] = np.load($"{statePath}.weights.npy");
             }
-            NpzDictionary<Array> loadedState = np.Load_Npz<Array>(statePath);
-            return new Dictionary<string, Array>(loadedState);
+            if (File.Exists($"{statePath}.step.npy"))
+            {
+                stateDict["step"] = np.load($"{statePath}.step.npy");
+            }
+            return stateDict;
         }
 
-        static void SaveState(string folderPath, Dictionary<string, Array> state)
+        static void SaveState(string folderPath, Dictionary<string, NDarray> state)
         {
             Directory.CreateDirectory(folderPath);
             string statePath = Path.Combine(folderPath, $"test1.npy");
-            np.Save_Npz(state, statePath);
+            np.save($"{statePath}.weights.npy", state["weights"]);
+            np.save($"{statePath}.step.npy", state["step"]);
+            // np.savez(statePath, kwds: state);
+            // np.savez(statePath, new NDarray[]{state["weights"], state["step"]});
         }
 
-        static (NDArray data, NDArray label) GetData(int batchSize, NDArray weights)
+        static (NDarray data, NDarray label) GetDataset(int batchSize, NDarray weights)
         {
-            NDArray data = np.random.randn(batchSize, 10);
-            NDArray label = np.sum(weights * data, 1);
+            NDarray data = np.random.randn(batchSize, 10);
+            NDarray label = np.sum(weights * data, 1);
             return (data, label);
         }
 
-        static void Train(ILayer layer, int batchSize, NDArray weights, string statePath)
+        static void Train(ILayer layer, int batchSize, NDarray weights, string statePath)
         {
             // load state
-            Dictionary<string, Array> trainState = LoadState(statePath);
+            Dictionary<string, NDarray> trainState = LoadState(statePath);
             if (trainState.ContainsKey("weights"))
             {
                 weights = trainState["weights"];
             }
             else
             {
-                trainState["weights"] = (Array)weights;
+                trainState["weights"] = weights;
             }
             layer.Load(statePath);
 
@@ -64,28 +72,31 @@ namespace NumSharpNetwork.Client
             int stepStart = 0;
             if (trainState.ContainsKey("step"))
             {
-                stepStart = ((NDArray)trainState["step"])[0];
+                stepStart = trainState["step"].asscalar<int>();
             }
 
             // train loop
             for (int step = stepStart; step < 300; step++)
             {
-                (NDArray data, NDArray label) = GetData(batchSize, weights);
+                (NDarray data, NDarray label) = GetDataset(batchSize, weights);
                 // predict := the output from the feedforward process
-                NDArray predict = layer.FeedForward(data);
+                NDarray predict = layer.FeedForward(data);
 
                 // loss = 0.5 * (solution - predict) ^ 2
-                NDArray loss = 0.5 * np.mean(np.power(label - np.squeeze(predict), 2));
+                NDarray loss = np.asarray(0.5) * np.mean(np.power(label - np.squeeze(predict), np.asarray(2)));
                 // d_loss/d_predict = - (solution - predict)
-                NDArray lossResultGradient = -np.reshape((label - np.squeeze(predict)), (batchSize, 1)) / batchSize;
-                Console.WriteLine($"Step: {step} | Loss: {loss}");
+                NDarray lossResultGradient = -np.reshape((label - np.squeeze(predict)), (batchSize, 1)) / batchSize;
 
                 layer.BackPropagate(lossResultGradient);
 
-                // save states
-                trainState["step"] = (Array)new NDArray(new int[] { step });
-                SaveState(statePath, trainState);
-                layer.Save(statePath);
+                if (step % 10 == 0)
+                {
+                    Console.WriteLine($"Step: {step} | Loss: {loss}");
+                    // save states
+                    trainState["step"] = np.asarray(step);
+                    SaveState(statePath, trainState);
+                    layer.Save(statePath);
+                }
             }
         }
     }
