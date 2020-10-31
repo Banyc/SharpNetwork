@@ -70,10 +70,10 @@ namespace NumSharpNetwork.Client
                 NDArray predict = layer.Forward(data);
 
                 NDArray loss = 0.5 * np.mean(np.power(label - np.squeeze(predict), 2));
-                NDArray lossGradient = -np.reshape((label - np.squeeze(predict)), (batchSize, 1)) / batchSize;
+                NDArray lossResultGradient = -np.reshape((label - np.squeeze(predict)), (batchSize, 1)) / batchSize;
                 Console.WriteLine($"Step: {step} | Loss: {loss}");
 
-                layer.Backward(lossGradient);
+                layer.Backward(lossResultGradient);
 
                 trainState["step"] = (Array)new NDArray(new int[] { step });
                 SaveState(statePath, trainState);

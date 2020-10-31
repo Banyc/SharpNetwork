@@ -36,16 +36,16 @@ namespace NumSharpNetwork.Shared.Networks
             this.Weights = np.random.randn(inputSize, outputSize) * weightScale;
         }
 
-        public NDArray Backward(NDArray resultLossGradient)
+        public NDArray Backward(NDArray lossResultGradient)
         {
-            NDArray biasesLossGradient = np.sum(resultLossGradient, 0);
-            NDArray weightsLossGradient = np.dot(this.Record.Input.T, resultLossGradient);
-            NDArray inputLossGradient = np.dot(resultLossGradient, this.Record.Weights.T);
+            NDArray lossBiasesGradient = np.sum(lossResultGradient, 0);
+            NDArray lossWeightsGradient = np.dot(this.Record.Input.T, lossResultGradient);
+            NDArray lossInputGradient = np.dot(lossResultGradient, this.Record.Weights.T);
 
-            this.Biases = this.Optimizer.Optimize(this.Biases, biasesLossGradient, isRegularization: false);
-            this.Weights = this.Optimizer.Optimize(this.Weights, weightsLossGradient, isRegularization: true);
+            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient, isRegularization: false);
+            this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isRegularization: true);
 
-            return inputLossGradient;
+            return lossInputGradient;
         }
 
         public NDArray Forward(NDArray input)
