@@ -7,7 +7,7 @@ namespace NumSharpNetwork.Shared.Networks
 {
     public class ThreeLinearLayers : ILayer
     {
-        private List<LinearLayer> Layers { get; } = new List<LinearLayer>();
+        private List<ILayer> Layers { get; } = new List<ILayer>();
         public string Name { get; set; } = "three-layers";
         public bool IsTrainMode
         {
