@@ -91,7 +91,7 @@ namespace NumSharpNetwork.Client
 
                 if (step % 10 == 0)
                 {
-                    Console.WriteLine($"Step: {step} | Loss: {loss}");
+                    Console.WriteLine($"Step: {step} | Loss: {loss.asscalar<double>().ToString("0.0000")}");
                     // save states
                     trainState["step"] = np.asarray(step);
                     SaveState(statePath, trainState);
