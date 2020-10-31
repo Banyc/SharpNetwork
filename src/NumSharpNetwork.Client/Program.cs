@@ -82,10 +82,10 @@ namespace NumSharpNetwork.Client
 
                 layer.BackPropagate(lossResultGradient);
 
-                // // save states
-                // trainState["step"] = (Array)new NDArray(new int[] { step });
-                // SaveState(statePath, trainState);
-                // layer.Save(statePath);
+                // save states
+                trainState["step"] = (Array)new NDArray(new int[] { step });
+                SaveState(statePath, trainState);
+                layer.Save(statePath);
             }
         }
     }
