@@ -1,11 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NumSharp" Version="0.20.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NumSharpNetwork.Shared\NumSharpNetwork.Shared.csproj" />
   </ItemGroup>
 
 </Project>
