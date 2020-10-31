@@ -9,13 +9,13 @@ namespace NumSharpNetwork.Shared.Optimizers
         public BasicOptimizer()
         {
         }
-        public NDArray Optimize(NDArray weights, NDArray weightGradients, bool isRegularization)
+        public NDArray Optimize(NDArray weights, NDArray lossWeightGradients, bool isRegularization)
         {
             if (isRegularization)
             {
-                return weights - this.LearningRate * (weightGradients + weights * this.Regularization);
+                return weights - this.LearningRate * (lossWeightGradients + weights * this.Regularization);
             }
-            return weights - this.LearningRate * weightGradients;
+            return weights - this.LearningRate * lossWeightGradients;
         }
     }
 }

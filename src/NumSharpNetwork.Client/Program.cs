@@ -10,8 +10,9 @@ namespace NumSharpNetwork.Client
     {
         static void Main(string[] args)
         {
+            // a hidden set of weights that is used to generate dataset
             NDArray weights = np.random.randn(10);
-            int batchSize = 200;
+            const int batchSize = 200;
 
             ThreeLinearLayers layers = new ThreeLinearLayers();
 
@@ -47,6 +48,7 @@ namespace NumSharpNetwork.Client
 
         static void Train(ILayer layer, int batchSize, NDArray weights, string statePath)
         {
+            // load state
             Dictionary<string, Array> trainState = LoadState(statePath);
             if (trainState.ContainsKey("weights"))
             {
@@ -58,26 +60,32 @@ namespace NumSharpNetwork.Client
             }
             layer.Load(statePath);
 
+            // restore step number
             int stepStart = 0;
             if (trainState.ContainsKey("step"))
             {
                 stepStart = ((NDArray)trainState["step"])[0];
             }
 
+            // train loop
             for (int step = stepStart; step < 300; step++)
             {
                 (NDArray data, NDArray label) = GetData(batchSize, weights);
-                NDArray predict = layer.Forward(data);
+                // predict := the output from the feedforward process
+                NDArray predict = layer.FeedForward(data);
 
+                // loss = 0.5 * (solution - predict) ^ 2
                 NDArray loss = 0.5 * np.mean(np.power(label - np.squeeze(predict), 2));
+                // d_loss/d_predict = - (solution - predict)
                 NDArray lossResultGradient = -np.reshape((label - np.squeeze(predict)), (batchSize, 1)) / batchSize;
                 Console.WriteLine($"Step: {step} | Loss: {loss}");
 
-                layer.Backward(lossResultGradient);
+                layer.BackPropagate(lossResultGradient);
 
-                trainState["step"] = (Array)new NDArray(new int[] { step });
-                SaveState(statePath, trainState);
-                layer.Save(statePath);
+                // // save states
+                // trainState["step"] = (Array)new NDArray(new int[] { step });
+                // SaveState(statePath, trainState);
+                // layer.Save(statePath);
             }
         }
     }

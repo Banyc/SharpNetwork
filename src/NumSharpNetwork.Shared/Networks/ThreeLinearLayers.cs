@@ -55,24 +55,24 @@ namespace NumSharpNetwork.Shared.Networks
             this.Layers.Add(layer3);
         }
 
-        public NDArray Forward(NDArray input)
+        public NDArray FeedForward(NDArray input)
         {
             NDArray result = input;
             foreach (ILayer layer in this.Layers)
             {
-                result = layer.Forward(result);
+                result = layer.FeedForward(result);
             }
             return result;
         }
 
-        public NDArray Backward(NDArray resultLossGradient)
+        public NDArray BackPropagate(NDArray resultLossGradient)
         {
             NDArray result = resultLossGradient;
             int i;
             for (i = this.Layers.Count - 1; i >= 0; i--)
             {
                 ILayer layer = this.Layers[i];
-                result = layer.Backward(result);
+                result = layer.BackPropagate(result);
             }
             return result;
         }
