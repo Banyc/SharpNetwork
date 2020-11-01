@@ -60,9 +60,9 @@ namespace NumSharpNetwork.Shared.Networks
             // lossInputGradient.shape := [batchSize, inputSize]
             NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
 
-            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient, isRegularization: false);
-            // this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isRegularization: true);
-            this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isRegularization: false);
+            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient, isAddRegularization: false);
+            // this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isAddRegularization: true);
+            this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isAddRegularization: false);
 
             return lossInputGradient;
         }

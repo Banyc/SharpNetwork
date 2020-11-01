@@ -9,9 +9,9 @@ namespace NumSharpNetwork.Shared.Optimizers
         public BasicOptimizer()
         {
         }
-        public NDarray Optimize(NDarray weights, NDarray lossWeightGradients, bool isRegularization)
+        public NDarray Optimize(NDarray weights, NDarray lossWeightGradients, bool isAddRegularization)
         {
-            if (isRegularization)
+            if (isAddRegularization)
             {
                 return weights - this.LearningRate * (lossWeightGradients + weights * this.Regularization);
             }
