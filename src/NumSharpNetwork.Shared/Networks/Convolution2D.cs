@@ -1,3 +1,4 @@
+using System.Data;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System;
@@ -19,7 +20,10 @@ namespace NumSharpNetwork.Shared.Networks
     public class Convolution2DRecord
     {
         public NDarray Input { get; set; }
+        public NDarray PaddedInput { get; set; }
+        public NDarray PaddedInput5D { get; set; }
         public NDarray Weights { get; set; }
+        public NDarray FilterWeights5D { get; set; }
         public NDarray ForwardResult { get; set; }
     }
 
@@ -100,7 +104,9 @@ namespace NumSharpNetwork.Shared.Networks
                 (paddedInputWidth - filterWidth + 1) / this.Stride
             );
 
-            // reshape
+            // reshape to align the last three axises, preparing for multiplication
+            // the size 1 in some axis could be considered as a scalar when that axis multiplies the same axis with a different size
+            // ex: [5] * [2, 3] == [10, 15]  // in the same axis but with different sizes
             NDarray filterWeights5D = this.FilterWeights.reshape(
                 1,
                 outputChannels,
@@ -118,6 +124,7 @@ namespace NumSharpNetwork.Shared.Networks
 
             int heightIndex;
             int widthIndex;
+            // scan the whole-ass image
             for (heightIndex = 0; heightIndex + 1 + filterHeight <= paddedInputHeight; heightIndex++)
             {
                 for (widthIndex = 0; widthIndex + 1 + filterWidth <= paddedInputWidth; widthIndex++)
@@ -135,8 +142,9 @@ namespace NumSharpNetwork.Shared.Networks
                     // multiply the field with filterWeights
                     NDarray multiplyMediacy = receptiveField * filterWeights5D;
                     // ... and sum to a bar
+                    // outputBar.shape = [batchSize, outputChannels, 1, 1, 1]
                     NDarray outputBar = np.sum(multiplyMediacy, new int[] { 2, 3, 4 });
-                    // put it to the result
+                    // insert it to the result
                     result[$":, :, {heightIndex}, {widthIndex}"] = outputBar;
                 }
             }
@@ -148,7 +156,10 @@ namespace NumSharpNetwork.Shared.Networks
 
             // save for backpropagation
             this.Record.Input = input;
+            this.Record.PaddedInput = paddedInput;
             this.Record.Weights = this.FilterWeights;
+            this.Record.FilterWeights5D = filterWeights5D;
+            this.Record.PaddedInput5D = paddedInput5D;
             this.Record.ForwardResult = result;
 
             return result;
@@ -156,7 +167,83 @@ namespace NumSharpNetwork.Shared.Networks
 
         public NDarray BackPropagate(NDarray lossResultGradient)
         {
-            throw new System.NotImplementedException();
+            int batchSize = this.Record.Input.shape.Dimensions[0];
+            int outputChannels = this.Record.Weights.shape.Dimensions[0];
+            int inputChannels = this.Record.Weights.shape.Dimensions[1];
+            int filterHeight = this.Record.Weights.shape.Dimensions[2];
+            int filterWidth = this.Record.Weights.shape.Dimensions[3];
+            int paddedInputHeight = this.Record.PaddedInput.shape.Dimensions[2];
+            int paddedInputWidth = this.Record.PaddedInput.shape.Dimensions[3];
+
+            // lossWeightsGradient.shape = [outputChannels, inputChannels, filterHeight, filterWidth]
+            NDarray lossWeightsGradient = np.empty_like(this.Record.Weights);
+            // paddedLossInputGradient.shape = [batchSize, inputChannels, paddedInputHeight, paddedInputWidth]
+            NDarray paddedLossInputGradient = this.Record.PaddedInput.copy();
+
+            int heightIndex;
+            int widthIndex;
+            // scan the whole-ass image
+            for (heightIndex = 0; heightIndex + 1 + filterHeight <= paddedInputHeight; heightIndex++)
+            {
+                for (widthIndex = 0; widthIndex + 1 + filterWidth <= paddedInputWidth; widthIndex++)
+                {
+                    // cut the receptive field from the paddedInput5D
+                    NDarray receptiveField = this.Record.PaddedInput5D[
+                        $@"
+                        :, 
+                        :, 
+                        :, 
+                        {this.Stride * heightIndex}:{(this.Stride * heightIndex) + filterHeight}, 
+                        {this.Stride * widthIndex}:{(this.Stride * widthIndex) + filterWidth}"
+                    ];
+                    // cut the outputBar from lossResultGradient
+                    NDarray outputBarFromLossResultGradient = lossResultGradient[
+                        $@"
+                        :, 
+                        :, 
+                        {heightIndex},
+                        {widthIndex}"
+                    ];
+                    // align with filterWeights5D
+                    NDarray outputBarFromLossResultGradient5D = outputBarFromLossResultGradient.reshape(batchSize, outputChannels, 1, 1, 1);
+
+                    // d_loss/d_x = d_loss/d_result * w'
+                    NDarray receptiveFieldFromLossInputGradient = np.sum(this.Record.FilterWeights5D * outputBarFromLossResultGradient5D, 1);
+                    // since elements in {d_loss/d_result} to some element in {d_loss/d_x} is a many-to-one relationship,
+                    // the partial gradient {d_loss/d_x} should be added up
+                    paddedLossInputGradient[
+                        $@"
+                        :, 
+                        :, 
+                        {this.Stride * heightIndex}:{(this.Stride * heightIndex) + filterHeight},
+                        {this.Stride * widthIndex}:{(this.Stride * widthIndex) + filterWidth}"
+                    ] += receptiveFieldFromLossInputGradient;
+
+                    // d_loss/d_w = x * d_loss/d_result
+                    NDarray partialLossWeightsGradient = np.sum(receptiveField * outputBarFromLossResultGradient5D);
+                    // since elements in {d_loss/d_result} to some element in {d_loss/d_weight} is a many-to-one relationship,
+                    // the partial gradient {d_loss/d_weight} should be added up
+                    lossWeightsGradient += partialLossWeightsGradient;
+                }
+            }
+
+            NDarray lossInputGradient = paddedLossInputGradient[
+                $@"
+                :, 
+                :, 
+                {this.TopLeftPaddingSize}:{-this.BottomRightPaddingSize}, 
+                {this.TopLeftPaddingSize}:{-this.BottomRightPaddingSize}"
+            ];
+
+            // since, in the feedforward process, the same biases is been used to produce many batches and many channels in the result,
+            // the partial gradients should also be added up
+            NDarray lossBiasesGradient = np.sum(lossResultGradient, new int[] { 0, 2, 3 });
+
+            // update
+            this.FilterWeights = this.Optimizer.Optimize(this.FilterWeights, lossWeightsGradient, true);
+            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient, false);
+
+            return lossInputGradient;
         }
 
         public void Save(string folderPath)
