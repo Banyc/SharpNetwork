@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Numpy;
+using NumSharpNetwork.Shared.LossFunctions;
 using NumSharpNetwork.Shared.Networks;
 
 namespace NumSharpNetwork.Client.Scenarios
@@ -65,6 +66,9 @@ namespace NumSharpNetwork.Client.Scenarios
 
         static void Train(ILayer layer, int batchSize, NDarray weights, string statePath)
         {
+            // loss function
+            ILossFunction mse = new MeanSquaredError();
+
             // load state
             Dictionary<string, NDarray> trainState = LoadState(statePath);
             if (trainState.ContainsKey("weights"))
@@ -91,10 +95,8 @@ namespace NumSharpNetwork.Client.Scenarios
                 // predict := the output from the feedforward process
                 NDarray predict = layer.FeedForward(data);
 
-                // loss = 0.5 * (solution - predict) ^ 2
-                NDarray loss = np.asarray(0.5) * np.mean(np.power(label - np.squeeze(predict), np.asarray(2)));
-                // d_loss/d_predict = - (solution - predict)
-                NDarray lossResultGradient = -np.reshape((label - np.squeeze(predict)), (batchSize, 1)) / batchSize;
+                NDarray loss = mse.GetLoss(predict, label);
+                NDarray lossResultGradient = mse.GetLossResultGradient(predict, label);
 
                 layer.BackPropagate(lossResultGradient);
 
