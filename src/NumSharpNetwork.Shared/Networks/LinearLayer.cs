@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
 using Numpy;
 using NumSharpNetwork.Shared.Optimizers;
@@ -71,7 +69,7 @@ namespace NumSharpNetwork.Shared.Networks
         // input.size := [batchSize, outputSize]
         public NDarray FeedForward(NDarray input)
         {
-            NDarray result = np.matmul(input, this.Weights) + this.Biases;
+            NDarray result = np.dot(input, this.Weights) + this.Biases;
 
             this.Record.Input = input;
             this.Record.ForwardResult = result;

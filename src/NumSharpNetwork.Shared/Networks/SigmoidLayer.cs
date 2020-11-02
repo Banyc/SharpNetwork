@@ -1,5 +1,3 @@
-using System.Net.Mail;
-using System.Reflection.Emit;
 using Numpy;
 
 namespace NumSharpNetwork.Shared.Networks

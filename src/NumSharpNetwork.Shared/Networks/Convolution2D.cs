@@ -1,7 +1,3 @@
-using System.Data;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System;
 using Numpy;
 using NumSharpNetwork.Shared.Optimizers;
 using System.IO;
