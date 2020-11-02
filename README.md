@@ -8,6 +8,14 @@ Defining network in Numpy.NET. For more information, go to [this repository](htt
 
 For education rather than for production.
 
+## Restriction
+
+Currently Windows only.
+
+## Notices
+
+- `lossXXXXXGradient.shape == XXXXX.shape` 
+
 ## Credit
 
 - The origin/inspiring project - <https://github.com/zllz4/numpy-network>
