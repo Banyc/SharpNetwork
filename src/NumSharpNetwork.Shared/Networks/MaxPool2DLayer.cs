@@ -74,6 +74,7 @@ namespace NumSharpNetwork.Shared.Networks
             return lossInputGradient;
         }
 
+        // https://leimao.github.io/blog/Max-Pooling-Backpropagation/
         // input.shape = [batchSize, inputChannels, inputHeight, inputWidth]
         public NDarray FeedForward(NDarray input)
         {
