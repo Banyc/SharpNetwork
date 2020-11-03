@@ -89,7 +89,7 @@ namespace NumSharpNetwork.Shared.Networks
             int paddedInputWidth = paddedInput.shape.Dimensions[3];
 
             // allocate memory for result
-            NDarray result = np.zeros(
+            NDarray result = np.empty(
                 // batch size
                 batchSize,
                 // output Channels
@@ -121,9 +121,9 @@ namespace NumSharpNetwork.Shared.Networks
             int heightIndex;
             int widthIndex;
             // scan the whole-ass image
-            for (heightIndex = 0; heightIndex + 1 + filterHeight <= paddedInputHeight; heightIndex++)
+            for (heightIndex = 0; heightIndex + 1 + filterHeight <= paddedInputHeight; heightIndex += this.Stride)
             {
-                for (widthIndex = 0; widthIndex + 1 + filterWidth <= paddedInputWidth; widthIndex++)
+                for (widthIndex = 0; widthIndex + 1 + filterWidth <= paddedInputWidth; widthIndex += this.Stride)
                 {
                     // cut the receptive field from the paddedInput
                     NDarray receptiveField = paddedInput5D[
@@ -174,7 +174,7 @@ namespace NumSharpNetwork.Shared.Networks
             // lossWeightsGradient.shape = [outputChannels, inputChannels, filterHeight, filterWidth]
             NDarray lossWeightsGradient = np.empty_like(this.Record.Weights);
             // paddedLossInputGradient.shape = [batchSize, inputChannels, paddedInputHeight, paddedInputWidth]
-            NDarray paddedLossInputGradient = this.Record.PaddedInput.copy();
+            NDarray paddedLossInputGradient = np.zeros_like(this.Record.PaddedInput);
 
             int heightIndex;
             int widthIndex;
