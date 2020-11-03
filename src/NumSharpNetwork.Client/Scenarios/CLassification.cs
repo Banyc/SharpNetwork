@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.IO;
 using Numpy;
 using NumSharpNetwork.Shared.LossFunctions;
-using NumSharpNetwork.Shared.Networks;
 using NumSharpNetwork.Shared.Networks.Wrappers;
+using NumSharpNetwork.Shared.Networks;
 
 namespace NumSharpNetwork.Client.Scenarios
 {
-    public class Regression
+    public class CLassification
     {
         private NDarray weights;
         private int batchSize;
         private ILayer layers;
         private string folderPath;
 
-        public Regression()
+        public CLassification()
         {
             // a hidden set of weights that is used to generate dataset
             this.weights = np.random.randn(10);

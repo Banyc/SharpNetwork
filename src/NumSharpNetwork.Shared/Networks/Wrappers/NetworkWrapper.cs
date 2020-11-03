@@ -1,14 +1,12 @@
-using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using Numpy;
-using NumSharpNetwork.Shared.Optimizers;
 
-namespace NumSharpNetwork.Shared.Networks
+namespace NumSharpNetwork.Shared.Networks.Wrappers
 {
-    public class ThreeLinearLayers : ILayer
+    public abstract class NetworkWrapper : ILayer
     {
-        private List<ILayer> Layers { get; } = new List<ILayer>();
-        public string Name { get; set; } = "three-layers";
+        protected List<ILayer> Layers { get; } = new List<ILayer>();
+        public virtual string Name { get; set; }
         public bool IsTrainMode
         {
             get
@@ -24,35 +22,8 @@ namespace NumSharpNetwork.Shared.Networks
             }
         }
 
-        public ThreeLinearLayers()
+        public NetworkWrapper()
         {
-            BasicOptimizer optimizer1 = new BasicOptimizer()
-            {
-                LearningRate = np.asarray(0.1)
-            };
-            LinearLayer layer1 = new LinearLayer(optimizer1, 10, 1000)
-            {
-                Name = "linear-layer-1"
-            };
-            BasicOptimizer optimizer2 = new BasicOptimizer()
-            {
-                LearningRate = np.asarray(0.1)
-            };
-            LinearLayer layer2 = new LinearLayer(optimizer2, 1000, 500)
-            {
-                Name = "linear-layer-2"
-            };
-            BasicOptimizer optimizer3 = new BasicOptimizer()
-            {
-                LearningRate = np.asarray(0.1)
-            };
-            LinearLayer layer3 = new LinearLayer(optimizer3, 500, 1)
-            {
-                Name = "linear-layer-3"
-            };
-            this.Layers.Add(layer1);
-            this.Layers.Add(layer2);
-            this.Layers.Add(layer3);
         }
 
         public NDarray FeedForward(NDarray input)
