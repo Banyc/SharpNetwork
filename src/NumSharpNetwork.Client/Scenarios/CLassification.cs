@@ -5,42 +5,46 @@ using Numpy;
 using NumSharpNetwork.Shared.LossFunctions;
 using NumSharpNetwork.Shared.Networks.Wrappers;
 using NumSharpNetwork.Shared.Networks;
+using NumSharpNetwork.Shared.Optimizers;
+using NumSharpNetwork.Client.DatasetReaders;
 
 namespace NumSharpNetwork.Client.Scenarios
 {
-    public class CLassification
+    public class Classification
     {
-        private NDarray weights;
         private int batchSize;
         private ILayer layers;
-        private string folderPath;
+        private string stateFolderPath;
+        private DatasetLoader trainDataset;
+        private DatasetLoader testDataset;
 
-        public CLassification()
+        public Classification()
         {
-            // a hidden set of weights that is used to generate dataset
-            this.weights = np.random.randn(10);
-            this.batchSize = 200;
+            this.batchSize = 2;
 
-            this.layers = new ThreeLinearLayers();
+            // initialize DatasetLoader trainDataset here
 
-            this.folderPath = "trainings";
+            BasicOptimizer optimizer = new BasicOptimizer()
+            {
+                LearningRate = np.asarray(0.001)
+            };
+
+            this.layers = new Cnn(28, 28, 1, 10, optimizer);
+
+            this.stateFolderPath = "trainings/classification";
         }
 
         public void Train()
         {
-            Train(layers, batchSize, weights, folderPath);
+            Train(layers, batchSize, this.trainDataset, stateFolderPath);
         }
 
-        static Dictionary<string, NDarray> LoadState(string folderPath)
+        static Dictionary<string, NDarray> LoadState(string stateFolderPath)
         {
-            Directory.CreateDirectory(folderPath);
-            string statePath = Path.Combine(folderPath, $"test1.npy");
+            Directory.CreateDirectory(stateFolderPath);
+            string statePath = Path.Combine(stateFolderPath, $"Classification-1.npy");
             Dictionary<string, NDarray> stateDict = new Dictionary<string, NDarray>();
 
-            if (File.Exists($"{statePath}.weights.npy"))
-            {
-                stateDict["weights"] = np.load($"{statePath}.weights.npy");
-            }
             if (File.Exists($"{statePath}.step.npy"))
             {
                 stateDict["step"] = np.load($"{statePath}.step.npy");
@@ -48,38 +52,23 @@ namespace NumSharpNetwork.Client.Scenarios
             return stateDict;
         }
 
-        static void SaveState(string folderPath, Dictionary<string, NDarray> state)
+        static void SaveState(string stateFolderPath, Dictionary<string, NDarray> state)
         {
-            Directory.CreateDirectory(folderPath);
-            string statePath = Path.Combine(folderPath, $"test1.npy");
-            np.save($"{statePath}.weights.npy", state["weights"]);
+            Directory.CreateDirectory(stateFolderPath);
+            string statePath = Path.Combine(stateFolderPath, $"Classification-1.npy");
             np.save($"{statePath}.step.npy", state["step"]);
-            // np.savez(statePath, kwds: state);
-            // np.savez(statePath, new NDarray[]{state["weights"], state["step"]});
         }
 
-        static (NDarray data, NDarray label) GetDataset(int batchSize, NDarray weights)
-        {
-            NDarray data = np.random.randn(batchSize, 10);
-            NDarray label = np.sum(weights * data, 1);
-            return (data, label);
-        }
-
-        static void Train(ILayer layer, int batchSize, NDarray weights, string statePath)
+        static void Train(ILayer layer, int batchSize, DatasetLoader trainDataset, string statePath)
         {
             // loss function
-            ILossFunction mse = new MeanSquaredError();
+            ILossFunction crossEntropy = new CrossEntropy()
+            {
+                LabelType = CrossEntropyLabelType.Embedded
+            };
 
             // load state
             Dictionary<string, NDarray> trainState = LoadState(statePath);
-            if (trainState.ContainsKey("weights"))
-            {
-                weights = trainState["weights"];
-            }
-            else
-            {
-                trainState["weights"] = weights;
-            }
             layer.Load(statePath);
 
             // restore step number
@@ -90,25 +79,30 @@ namespace NumSharpNetwork.Client.Scenarios
             }
 
             // train loop
-            for (int step = stepStart; step < 300; step++)
+            int step = stepStart;
+            // foreach ((NDarray data, NDarray label) in trainDataset.GetBatches(step))
             {
-                (NDarray data, NDarray label) = GetDataset(batchSize, weights);
+                // test
+                NDarray data = np.ones(batchSize, 1, 28, 28);
+                NDarray label = np.ones(batchSize, 1);
+
                 // predict := the output from the feedforward process
                 NDarray predict = layer.FeedForward(data);
 
-                NDarray loss = mse.GetLoss(predict, label);
-                NDarray lossResultGradient = mse.GetLossResultGradient(predict, label);
+                NDarray loss = crossEntropy.GetLoss(predict, label);
+                NDarray lossResultGradient = crossEntropy.GetLossResultGradient(predict, label);
 
                 layer.BackPropagate(lossResultGradient);
 
                 if (step % 10 == 0)
                 {
-                    Console.WriteLine($"Step: {step} | Loss: {loss.asscalar<double>().ToString("0.0000")}");
+                    Console.WriteLine($"Step: {step} | Loss: {loss.mean().ToString("0.0000")}");
                     // save states
                     trainState["step"] = np.asarray(step);
                     SaveState(statePath, trainState);
                     layer.Save(statePath);
                 }
+                step++;
             }
         }
     }
