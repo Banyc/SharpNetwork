@@ -19,30 +19,36 @@ namespace NumSharpNetwork.Shared.LossFunctions
             {
                 case CrossEntropyLabelType.OneHot:
                     return GetLossOneHot(result, label);
-                // case CrossEntropyLabelType.Embedded:
-                //     return GetLossEmbedded(result, label);
+                case CrossEntropyLabelType.Embedded:
+                    return GetLossOneHot(result, GetOneHotLabel(result, label));
                 default:
                     return null;
             }
         }
 
-        // private NDarray GetLossEmbedded(NDarray result, NDarray label)
-        // {
-        //     int batchSize = label.shape.Dimensions[0];
-        //     NDarray loss = np.empty(batchSize);
-        //     int batchIndex;
-        //     int labelIndex;
-        //     for (batchIndex = 0; batchIndex < batchSize; batchIndex++)
-        //     {
-        //         for (labelIndex = 0; labelIndex < label.shape.Dimensions[1]; labelIndex++)
-        //         {
-                    
-        //         }
-        //     }
+        // embeddedLabel.shape = [batchSize, 1]
+        private NDarray GetOneHotLabel(NDarray result, NDarray embeddedLabel)
+        {
+            int batchSize = result.shape.Dimensions[0];
+            int numClasses = result.shape.Dimensions[1];
 
-        //     return loss;
-        // }
+            NDarray oneHotLabel = np.zeros_like(result);
 
+            int batchIndex;
+            int classIndex;
+            for (batchIndex = 0; batchIndex < batchSize; batchIndex++)
+            {
+                NDarray embedded = embeddedLabel[$"{batchIndex}"];
+                for (classIndex = 0; classIndex < embedded.size; classIndex++)
+                {
+                    oneHotLabel[$"{batchIndex}, {classIndex}"] = np.asarray(1);
+                }
+            }
+
+            return oneHotLabel;
+        }
+
+        // label.shape = [batchSize, numClasses]
         // https://sgugger.github.io/a-simple-neural-net-in-numpy.html
         private NDarray GetLossOneHot(NDarray result, NDarray label)
         {
@@ -59,6 +65,8 @@ namespace NumSharpNetwork.Shared.LossFunctions
             {
                 case CrossEntropyLabelType.OneHot:
                     return GetLossResultGradientOneHot(result, label);
+                case CrossEntropyLabelType.Embedded:
+                    return GetLossResultGradientOneHot(result, GetOneHotLabel(result, label));
                 default:
                     return null;
             }
