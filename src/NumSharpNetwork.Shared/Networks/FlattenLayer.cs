@@ -25,7 +25,7 @@ namespace NumSharpNetwork.Shared.Networks
             int batchSize = input.shape.Dimensions[0];
             NDarray result = input.reshape(batchSize, -1);
 
-            this.PreviousInput = result;
+            this.PreviousInput = input;
 
             return result;
         }
