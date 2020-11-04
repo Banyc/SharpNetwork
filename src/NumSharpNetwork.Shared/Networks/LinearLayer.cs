@@ -33,12 +33,13 @@ namespace NumSharpNetwork.Shared.Networks
         // the latest records of parameters and results of feedforward process
         private LinearLayerRecord Record { get; } = new LinearLayerRecord();
 
-        public LinearLayer(IOptimizer optimizer, int inputSize, int outputSize, double weightScale = 0.001d)
+        public LinearLayer(IOptimizer optimizer, int inputSize, int outputSize, double weightScale = 0.001d, string name = "linearLayer")
         {
             this.Optimizer = optimizer;
 
             this.InputSize = inputSize;
             this.OutputSize = outputSize;
+            this.Name = name;
 
             // initialize biases and weights
             this.Biases = np.zeros(outputSize);

@@ -51,11 +51,12 @@ namespace NumSharpNetwork.Shared.Networks
         public IOptimizer Optimizer { get; set; }
         private Convolution2DRecord Record { get; set; } = new Convolution2DRecord();
 
-        public Convolution2D(int inputChannels, int outputChannels, IOptimizer optimizer, int kernelSize = 3, int stride = 1, double weightScale = 0.001d)
+        public Convolution2D(int inputChannels, int outputChannels, IOptimizer optimizer, int kernelSize = 3, int stride = 1, double weightScale = 0.001d, string name = "convolution2D")
         {
             this.KernelSize = kernelSize;
             this.Stride = stride;
             this.Optimizer = optimizer;
+            this.Name = name;
 
             this.FilterWeights = np.random.randn(outputChannels, inputChannels, kernelSize, kernelSize) * weightScale;
             this.Biases = np.zeros(outputChannels);
