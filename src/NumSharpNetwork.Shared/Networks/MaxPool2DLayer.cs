@@ -48,19 +48,11 @@ namespace NumSharpNetwork.Shared.Networks
                     NDarray MaskOnReceptiveField =
                         np.where(receptiveField >=
                             this.PreviousResult[$":, :, {heightIndex}, {widthIndex}"].reshape(batchSize, inputChannels, 1, 1),
-                            // lossResultGradient[$@"
-                            //     :, 
-                            //     :, 
-                            //     {heightIndex * this.Stride} : {heightIndex * this.Stride + poolHeight}, 
-                            //     {widthIndex * this.Stride} : {widthIndex * this.Stride + poolWidth}
-                            // "],
                             np.asarray(1),
                             np.asarray(0));
 
                     NDarray lossInputGradientInReceptiveField =
                         MaskOnReceptiveField * lossResultGradient[$":, :, {heightIndex}, {widthIndex}"].reshape(batchSize, inputChannels, 1, 1);
-
-                    Console.WriteLine(lossInputGradientInReceptiveField);
 
                     lossInputGradient[$@"
                             :, 
