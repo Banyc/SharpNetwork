@@ -33,9 +33,10 @@ namespace NumSharpNetwork.Shared.Networks
             NDarray lossInputGradient = np.zeros_like(this.PreviousInput);
             int heightIndex;
             int widthIndex;
-            for (heightIndex = 0; heightIndex < outputHeight; heightIndex += this.Stride)
+            // iterating the result tensor of the feedforward process
+            for (heightIndex = 0; heightIndex < outputHeight; heightIndex++)
             {
-                for (widthIndex = 0; widthIndex < outputWidth; widthIndex += this.Stride)
+                for (widthIndex = 0; widthIndex < outputWidth; widthIndex++)
                 {
                     NDarray receptiveField =
                         this.PreviousInput[$@"
@@ -45,14 +46,14 @@ namespace NumSharpNetwork.Shared.Networks
                             {widthIndex * this.Stride} : {widthIndex * this.Stride + poolWidth}
                         "];
 
-                    NDarray MaskOnReceptiveField =
+                    NDarray maskOnReceptiveField =
                         np.where(receptiveField >=
                             this.PreviousResult[$":, :, {heightIndex}, {widthIndex}"].reshape(batchSize, inputChannels, 1, 1),
                             np.asarray(1),
                             np.asarray(0));
 
                     NDarray lossInputGradientInReceptiveField =
-                        MaskOnReceptiveField * lossResultGradient[$":, :, {heightIndex}, {widthIndex}"].reshape(batchSize, inputChannels, 1, 1);
+                        maskOnReceptiveField * lossResultGradient[$":, :, {heightIndex}, {widthIndex}"].reshape(batchSize, inputChannels, 1, 1);
 
                     lossInputGradient[$@"
                             :, 
@@ -83,9 +84,9 @@ namespace NumSharpNetwork.Shared.Networks
             NDarray result = np.empty(batchSize, inputChannels, outputHeight, outputWidth);
             int heightIndex;
             int widthIndex;
-            for (heightIndex = 0; heightIndex < outputHeight; heightIndex += this.Stride)
+            for (heightIndex = 0; heightIndex < outputHeight; heightIndex++)
             {
-                for (widthIndex = 0; widthIndex < outputWidth; widthIndex += this.Stride)
+                for (widthIndex = 0; widthIndex < outputWidth; widthIndex++)
                 {
                     NDarray receptiveField =
                         input[$@"
