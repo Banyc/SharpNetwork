@@ -89,6 +89,9 @@ namespace NumSharpNetwork.Shared.Networks
             int paddedInputHeight = paddedInput.shape.Dimensions[2];
             int paddedInputWidth = paddedInput.shape.Dimensions[3];
 
+            int resultHeight = (paddedInputHeight - filterHeight + 1) / this.Stride;
+            int resultWidth = (paddedInputWidth - filterWidth + 1) / this.Stride;
+
             // allocate memory for result
             NDarray result = np.empty(
                 // batch size
@@ -96,10 +99,12 @@ namespace NumSharpNetwork.Shared.Networks
                 // output Channels
                 outputChannels,
                 // height = (paddedInput.height - FilterWeights.height + 1) / stride
-                (paddedInputHeight - filterHeight + 1) / this.Stride,
+                resultHeight,
                 // width = (paddedInput.width - FilterWeights.width + 1) / stride
-                (paddedInputWidth - filterWidth + 1) / this.Stride
+                resultWidth
             );
+            // // DEBUG ONLY
+            // result = np.full_like(result, np.nan);
 
             // reshape to align the last three axises, preparing for multiplication
             // the size 1 in some axis could be considered as a scalar when that axis multiplies the same axis with a different size
@@ -122,9 +127,9 @@ namespace NumSharpNetwork.Shared.Networks
             int heightIndex;
             int widthIndex;
             // scan the whole-ass image
-            for (heightIndex = 0; heightIndex + 1 + filterHeight <= paddedInputHeight; heightIndex += this.Stride)
+            for (heightIndex = 0; heightIndex < resultHeight; heightIndex++)
             {
-                for (widthIndex = 0; widthIndex + 1 + filterWidth <= paddedInputWidth; widthIndex += this.Stride)
+                for (widthIndex = 0; widthIndex < resultWidth; widthIndex++)
                 {
                     // cut the receptive field from the paddedInput
                     NDarray receptiveField = paddedInput5D[
@@ -159,6 +164,13 @@ namespace NumSharpNetwork.Shared.Networks
             this.Record.PaddedInput5D = paddedInput5D;
             this.Record.ForwardResult = result;
 
+            // // DEBUG ONLY
+            // // check
+            // if (np.isnan(result).any())
+            // {
+            //     throw new System.Exception("NaN detected!");
+            // }
+
             return result;
         }
 
@@ -172,17 +184,20 @@ namespace NumSharpNetwork.Shared.Networks
             int paddedInputHeight = this.Record.PaddedInput.shape.Dimensions[2];
             int paddedInputWidth = this.Record.PaddedInput.shape.Dimensions[3];
 
+            int resultHeight = (paddedInputHeight - filterHeight + 1) / this.Stride;
+            int resultWidth = (paddedInputWidth - filterWidth + 1) / this.Stride;
+
             // lossWeightsGradient.shape = [outputChannels, inputChannels, filterHeight, filterWidth]
-            NDarray lossWeightsGradient = np.empty_like(this.Record.Weights);
+            NDarray lossWeightsGradient = np.zeros_like(this.Record.Weights);
             // paddedLossInputGradient.shape = [batchSize, inputChannels, paddedInputHeight, paddedInputWidth]
             NDarray paddedLossInputGradient = np.zeros_like(this.Record.PaddedInput);
 
             int heightIndex;
             int widthIndex;
             // scan the whole-ass image
-            for (heightIndex = 0; heightIndex + 1 + filterHeight <= paddedInputHeight; heightIndex++)
+            for (heightIndex = 0; heightIndex < resultHeight; heightIndex++)
             {
-                for (widthIndex = 0; widthIndex + 1 + filterWidth <= paddedInputWidth; widthIndex++)
+                for (widthIndex = 0; widthIndex < resultWidth; widthIndex++)
                 {
                     // cut the receptive field from the paddedInput5D
                     NDarray receptiveField = this.Record.PaddedInput5D[
