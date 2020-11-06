@@ -32,18 +32,30 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             foreach (ILayer layer in this.Layers)
             {
                 result = layer.FeedForward(result);
+                // DEBUG ONLY
+                // check
+                if (np.isnan(result).any())
+                {
+                    throw new System.Exception("NaN detected!");
+                }
             }
             return result;
         }
 
-        public NDarray BackPropagate(NDarray resultLossGradient)
+        public NDarray BackPropagate(NDarray lossResultGradient)
         {
-            NDarray result = resultLossGradient;
+            NDarray result = lossResultGradient;
             int i;
             for (i = this.Layers.Count - 1; i >= 0; i--)
             {
                 ILayer layer = this.Layers[i];
                 result = layer.BackPropagate(result);
+                // DEBUG ONLY
+                // check
+                if (np.isnan(result).any())
+                {
+                    throw new System.Exception("NaN detected!");
+                }
             }
             return result;
         }
