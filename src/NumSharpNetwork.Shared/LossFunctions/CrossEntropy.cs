@@ -35,12 +35,15 @@ namespace NumSharpNetwork.Shared.LossFunctions
             NDarray oneHotLabel = np.zeros_like(result);
 
             int batchIndex;
-            int classIndex;
+            // for each batch
             for (batchIndex = 0; batchIndex < batchSize; batchIndex++)
             {
                 NDarray embedded = embeddedLabel[$"{batchIndex}"];
-                for (classIndex = 0; classIndex < embedded.size; classIndex++)
+                int i;
+                // for each embedded classIndex in the same batch
+                for (i = 0; i < embedded.size; i++)
                 {
+                    int classIndex = embedded[$"{i}"].asscalar<int>();
                     oneHotLabel[$"{batchIndex}, {classIndex}"] = np.asarray(1);
                 }
             }
