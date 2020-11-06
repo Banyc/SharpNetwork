@@ -23,6 +23,9 @@ namespace NumSharpNetwork.Client.Scenarios
             this.batchSize = 2;
 
             // initialize DatasetLoader trainDataset here
+            DatasetLoaderFactory datasetLoaderFactory = new DatasetLoaderFactory();
+
+            this.trainDataset = datasetLoaderFactory.GetMnist(this.batchSize);
 
             BasicOptimizer optimizer = new BasicOptimizer()
             {
@@ -80,11 +83,11 @@ namespace NumSharpNetwork.Client.Scenarios
 
             // train loop
             int step = stepStart;
-            // foreach ((NDarray data, NDarray label) in trainDataset.GetBatches(step))
+            foreach ((NDarray data, NDarray label) in trainDataset.GetBatches(step))
             {
-                // test
-                NDarray data = np.ones(batchSize, 1, 28, 28);
-                NDarray label = np.ones(batchSize, 1);
+                // // test
+                // NDarray data = np.ones(batchSize, 1, 28, 28);
+                // NDarray label = np.ones(batchSize, 1);
 
                 // predict := the output from the feedforward process
                 NDarray predict = layer.FeedForward(data);
