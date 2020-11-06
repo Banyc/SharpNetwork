@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Numpy;
 
@@ -7,13 +8,14 @@ namespace NumSharpNetwork.Client.DatasetReaders
     {
         public IDatasetReader Dataset { get; set; }
         public int BatchSize { get; set; }
+        private Random Random { get; set; } = new Random();
         public DatasetLoader(IDatasetReader dataset, int batchSize)
         {
             this.Dataset = dataset;
             this.BatchSize = batchSize;
         }
 
-        public IEnumerable<(NDarray dataBatches, NDarray embeddedLabelBatches)> GetBatches(int startStep = 0)
+        public IEnumerable<(NDarray dataBatches, NDarray embeddedLabelBatches)> GetBatches(int startStep = 0, bool isRandowm = true)
         {
             int numBatches = this.Dataset.Dataset.Count / this.BatchSize;
             int batchIndex;
@@ -25,7 +27,17 @@ namespace NumSharpNetwork.Client.DatasetReaders
                 int dataIndexOffset;
                 for (dataIndexOffset = 0; dataIndexOffset < this.BatchSize; dataIndexOffset++)
                 {
-                    (NDarray data, int classIndex) = this.Dataset.GetImageLabelPair(dataIndexOffset + baseDataIndex);
+                    NDarray data = null;
+                    int classIndex = -1;
+                    if (!isRandowm)
+                    {
+                        (data, classIndex) = this.Dataset.GetImageLabelPair(dataIndexOffset + baseDataIndex);
+                    }
+                    else
+                    {
+                        int randomIndex = this.Random.Next(0, this.Dataset.Dataset.Count);
+                        (data, classIndex) = this.Dataset.GetImageLabelPair(randomIndex);
+                    }
                     dataBatches[$"{dataIndexOffset}"] = data;
                     embeddedLabelBatches[$"{dataIndexOffset}"] = np.asarray(classIndex);
                 }
