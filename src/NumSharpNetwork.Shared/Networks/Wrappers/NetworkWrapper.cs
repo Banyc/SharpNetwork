@@ -32,12 +32,12 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             foreach (ILayer layer in this.Layers)
             {
                 result = layer.FeedForward(result);
-                // DEBUG ONLY
-                // check
-                if (np.isnan(result).any())
-                {
-                    throw new System.Exception("NaN detected!");
-                }
+                // // DEBUG ONLY
+                // // check
+                // if (np.isnan(result).any())
+                // {
+                //     throw new System.Exception("NaN detected!");
+                // }
             }
             return result;
         }
@@ -50,12 +50,12 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             {
                 ILayer layer = this.Layers[i];
                 result = layer.BackPropagate(result);
-                // DEBUG ONLY
-                // check
-                if (np.isnan(result).any())
-                {
-                    throw new System.Exception("NaN detected!");
-                }
+                // // DEBUG ONLY
+                // // check
+                // if (np.isnan(result).any())
+                // {
+                //     throw new System.Exception("NaN detected!");
+                // }
             }
             return result;
         }
