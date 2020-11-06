@@ -54,7 +54,7 @@ namespace NumSharpNetwork.Shared.LossFunctions
             // In practice though, just in case our network returns a value of xi to close to zero, we clip its value to a minimum of 1e−8 (usually).
             NDarray clippedResult = result.clip(np.asarray(0.00000001), null);
 
-            NDarray classlosses = label * -np.log(result);
+            NDarray classlosses = label * -np.log(clippedResult);
             NDarray loss = classlosses.sum(1);
             return loss;
         }
@@ -75,8 +75,14 @@ namespace NumSharpNetwork.Shared.LossFunctions
         // https://sgugger.github.io/a-simple-neural-net-in-numpy.html
         private NDarray GetLossResultGradientOneHot(NDarray result, NDarray label)
         {
+            // In practice though, just in case our network returns a value of xi to close to zero, we clip its value to a minimum of 1e−8 (usually).
+            // if result_i close to zero, the lossResultGradient_i will be -inf
+            // -inf will cause the spread of NaN
+            // NaN is infectious
+            NDarray clippedResult = result.clip(np.asarray(0.00000001), null);
+
             // lossResultGradient = - result_i * (1 / label_i)
-            NDarray lossResultGradient = np.where(label >= 1, -1 / result, np.asarray(0));
+            NDarray lossResultGradient = np.where(label >= 1, -1 / clippedResult, np.asarray(0));
             return lossResultGradient;
         }
     }
