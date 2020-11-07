@@ -22,10 +22,10 @@ namespace NumSharpNetwork.Shared.Networks
         {
             int poolHeight = this.KernelSize;
             int poolWidth = this.KernelSize;
-            int batchSize = this.PreviousInput.shape.Dimensions[0];
-            int inputChannels = this.PreviousInput.shape.Dimensions[1];
-            int inputHeight = this.PreviousInput.shape.Dimensions[2];
-            int inputWidth = this.PreviousInput.shape.Dimensions[3];
+            int batchSize = this.PreviousInput.shape[0];
+            int inputChannels = this.PreviousInput.shape[1];
+            int inputHeight = this.PreviousInput.shape[2];
+            int inputWidth = this.PreviousInput.shape[3];
 
             int outputHeight = 1 + (inputHeight - poolHeight) / this.Stride;
             int outputWidth = 1 + (inputWidth - poolWidth) / this.Stride;
@@ -73,10 +73,10 @@ namespace NumSharpNetwork.Shared.Networks
         {
             int poolHeight = this.KernelSize;
             int poolWidth = this.KernelSize;
-            int batchSize = input.shape.Dimensions[0];
-            int inputChannels = input.shape.Dimensions[1];
-            int inputHeight = input.shape.Dimensions[2];
-            int inputWidth = input.shape.Dimensions[3];
+            int batchSize = input.shape[0];
+            int inputChannels = input.shape[1];
+            int inputHeight = input.shape[2];
+            int inputWidth = input.shape[3];
 
             int outputHeight = 1 + (inputHeight - poolHeight) / this.Stride;
             int outputWidth = 1 + (inputWidth - poolWidth) / this.Stride;

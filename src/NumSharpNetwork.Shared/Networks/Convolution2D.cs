@@ -81,13 +81,13 @@ namespace NumSharpNetwork.Shared.Networks
             // height and width are padded with zeros
             NDarray paddedInput = np.pad(input, pad_width, "constant");
 
-            int batchSize = input.shape.Dimensions[0];
-            int outputChannels = this.FilterWeights.shape.Dimensions[0];
-            int inputChannels = this.FilterWeights.shape.Dimensions[1];
-            int filterHeight = this.FilterWeights.shape.Dimensions[2];
-            int filterWidth = this.FilterWeights.shape.Dimensions[3];
-            int paddedInputHeight = paddedInput.shape.Dimensions[2];
-            int paddedInputWidth = paddedInput.shape.Dimensions[3];
+            int batchSize = input.shape[0];
+            int outputChannels = this.FilterWeights.shape[0];
+            int inputChannels = this.FilterWeights.shape[1];
+            int filterHeight = this.FilterWeights.shape[2];
+            int filterWidth = this.FilterWeights.shape[3];
+            int paddedInputHeight = paddedInput.shape[2];
+            int paddedInputWidth = paddedInput.shape[3];
 
             int resultHeight = (paddedInputHeight - filterHeight + 1) / this.Stride;
             int resultWidth = (paddedInputWidth - filterWidth + 1) / this.Stride;
@@ -176,13 +176,13 @@ namespace NumSharpNetwork.Shared.Networks
 
         public NDarray BackPropagate(NDarray lossResultGradient)
         {
-            int batchSize = this.Record.Input.shape.Dimensions[0];
-            int outputChannels = this.Record.Weights.shape.Dimensions[0];
-            int inputChannels = this.Record.Weights.shape.Dimensions[1];
-            int filterHeight = this.Record.Weights.shape.Dimensions[2];
-            int filterWidth = this.Record.Weights.shape.Dimensions[3];
-            int paddedInputHeight = this.Record.PaddedInput.shape.Dimensions[2];
-            int paddedInputWidth = this.Record.PaddedInput.shape.Dimensions[3];
+            int batchSize = this.Record.Input.shape[0];
+            int outputChannels = this.Record.Weights.shape[0];
+            int inputChannels = this.Record.Weights.shape[1];
+            int filterHeight = this.Record.Weights.shape[2];
+            int filterWidth = this.Record.Weights.shape[3];
+            int paddedInputHeight = this.Record.PaddedInput.shape[2];
+            int paddedInputWidth = this.Record.PaddedInput.shape[3];
 
             int resultHeight = (paddedInputHeight - filterHeight + 1) / this.Stride;
             int resultWidth = (paddedInputWidth - filterWidth + 1) / this.Stride;
