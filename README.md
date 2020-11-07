@@ -6,7 +6,10 @@ Defining network in Numpy.NET. For more information, go to [this repository](htt
 
 ## Purpose
 
-For education rather than for production.
+- For education rather than for production.
+- OOP-friendly and maintainable machine learning code.
+- Reduce stupid errors before compile time.
+- Prefer robust coding than less typing.
 
 ## Restriction
 
