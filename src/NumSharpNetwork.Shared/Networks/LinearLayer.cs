@@ -52,10 +52,22 @@ namespace NumSharpNetwork.Shared.Networks
         // return d_loss / d_input
         public NDarray BackPropagate(NDarray lossResultGradient)
         {
+            // // lossBiasesGradient.shape := [outputSize]
+            // NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
+            // // lossWeightsGradient.shape := [inputSize, outputSize]
+            // NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
+            // // lossInputGradient.shape := [batchSize, inputSize]
+            // NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
+
+            int batchSize = this.Record.Input.shape[0];
+
             // lossBiasesGradient.shape := [outputSize]
-            NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
+            NDarray lossBiasesGradient = lossResultGradient.mean(0);
             // lossWeightsGradient.shape := [inputSize, outputSize]
-            NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
+            NDarray lossWeightsGradient = np.matmul(
+                this.Record.Input.reshape(batchSize, -1, 1),
+                lossResultGradient.reshape(batchSize, 1, -1)
+            ).mean(0);
             // lossInputGradient.shape := [batchSize, inputSize]
             NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
 
