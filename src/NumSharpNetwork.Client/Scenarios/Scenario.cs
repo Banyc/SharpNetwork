@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Numpy;
 
 namespace NumSharpNetwork.Client.Scenarios
@@ -9,7 +10,7 @@ namespace NumSharpNetwork.Client.Scenarios
         public string Name { get; set; }
         public string StateFolderPath { get; set; }
 
-        public abstract void Train();
+        public abstract void Train(ManualResetEvent stopTrainingSignal);
 
         protected Dictionary<string, NDarray> LoadState()
         {
