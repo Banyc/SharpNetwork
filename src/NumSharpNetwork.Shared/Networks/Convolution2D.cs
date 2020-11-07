@@ -232,7 +232,7 @@ namespace NumSharpNetwork.Shared.Networks
                     ] += receptiveFieldFromLossInputGradient;
 
                     // d_loss/d_w = x * d_loss/d_result
-                    NDarray partialLossWeightsGradient = np.sum(receptiveField * outputBarFromLossResultGradient5D);
+                    NDarray partialLossWeightsGradient = np.sum(receptiveField * outputBarFromLossResultGradient5D, 0);
                     // since elements in {d_loss/d_result} to some element in {d_loss/d_weight} is a many-to-one relationship,
                     // the partial gradient {d_loss/d_weight} should be added up
                     lossWeightsGradient += partialLossWeightsGradient;
