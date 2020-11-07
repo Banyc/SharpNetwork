@@ -19,7 +19,8 @@ namespace NumSharpNetwork.Shared.Networks
         public NDarray FeedForward(NDarray input)
         {
             this.PreviousInput = input;
-            return np.maximum(np.asarray(0), input);
+            NDarray result = np.maximum(np.asarray(0), input);
+            return result;
         }
 
         public void Load(string folderPath)
