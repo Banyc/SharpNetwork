@@ -46,12 +46,12 @@ namespace NumSharpNetwork.Shared.Networks
         // return shape = [batchSize, numScores]
         public NDarray FeedForward(NDarray input)
         {
-            // DEBUG ONLY
-            // check
-            if (np.isnan(input).any())
-            {
-                throw new System.Exception("NaN detected!");
-            }
+            // // DEBUG ONLY
+            // // check
+            // if (np.isnan(input).any())
+            // {
+            //     throw new System.Exception("NaN detected!");
+            // }
 
             // np.exp is not stable because it has Inf. So you should subtract maximum in x.
             // NDarray exps = np.exp(input - input.max());  // once input.max() == Inf, the whole exps will be 0's
@@ -59,13 +59,13 @@ namespace NumSharpNetwork.Shared.Networks
 
             this.PreviousResult = exps / np.reshape(np.sum(exps, 1), new int[] { -1, 1 });
 
-            // DEBUG ONLY
-            // check
-            if (np.isnan(this.PreviousResult).any())
-            {
-                // input might be too big.
-                throw new System.Exception("NaN detected!");
-            }
+            // // DEBUG ONLY
+            // // check
+            // if (np.isnan(this.PreviousResult).any())
+            // {
+            //     // input might be too big.
+            //     throw new System.Exception("NaN detected!");
+            // }
 
             return this.PreviousResult;
         }
