@@ -10,17 +10,17 @@ using NumSharpNetwork.Client.DatasetReaders;
 
 namespace NumSharpNetwork.Client.Scenarios
 {
-    public class Classification
+    public class Classification : Scenario
     {
         private int batchSize;
         private ILayer layers;
-        private string stateFolderPath;
         private DatasetLoader trainDataset;
         private DatasetLoader testDataset;
-        private string Name { get; set; } = "Classification-1";
 
         public Classification()
         {
+            this.Name = "Classification-1";
+
             this.batchSize = 16;
 
             // initialize DatasetLoader trainDataset here
@@ -38,44 +38,15 @@ namespace NumSharpNetwork.Client.Scenarios
             this.layers = new ImageLinearLayers(28, 28, 1, 10, optimizer);
             // this.layers = new Cnn(28, 28, 1, 10, optimizer);
 
-            this.stateFolderPath = "trainings/classification";
+            this.StateFolderPath = $"trainings/classification/{this.layers.Name}";
         }
 
-        public void Train()
+        public override void Train()
         {
-            Train(layers, this.trainDataset, stateFolderPath, this.Name, 5);
+            Train(layers, this.trainDataset, 5);
         }
 
-        static Dictionary<string, NDarray> LoadState(string stateFolderPath, string fileNamePrefix)
-        {
-            Directory.CreateDirectory(stateFolderPath);
-            string statePath = Path.Combine(stateFolderPath, fileNamePrefix);
-            Dictionary<string, NDarray> stateDict = new Dictionary<string, NDarray>();
-
-            string[] filePaths = Directory.GetFiles(stateFolderPath);
-            foreach (string filePath in filePaths)
-            {
-                string baseName = Path.GetFileNameWithoutExtension(filePath);
-                if (baseName.Contains(fileNamePrefix))
-                {
-                    string postFix = baseName[(fileNamePrefix.Length + 1)..];
-                    stateDict[postFix] = np.load($"{statePath}.{postFix}.npy");
-                }
-            }
-            return stateDict;
-        }
-
-        static void SaveState(string stateFolderPath, Dictionary<string, NDarray> state, string fileNamePrefix)
-        {
-            Directory.CreateDirectory(stateFolderPath);
-            string statePath = Path.Combine(stateFolderPath, fileNamePrefix);
-            foreach ((string key, NDarray value) in state)
-            {
-                np.save($"{statePath}.{key}.npy", value);
-            }
-        }
-
-        static void Train(ILayer layer, DatasetLoader trainDataset, string statePath, string stateFilenamePrefix, int numEpoches)
+        private void Train(ILayer layer, DatasetLoader trainDataset, int numEpoches)
         {
             // loss function
             ILossFunction crossEntropy = new CrossEntropy()
@@ -84,8 +55,8 @@ namespace NumSharpNetwork.Client.Scenarios
             };
 
             // load state
-            Dictionary<string, NDarray> trainState = LoadState(statePath, stateFilenamePrefix);
-            layer.Load(statePath);
+            Dictionary<string, NDarray> trainState = LoadState();
+            layer.Load(this.StateFolderPath);
 
             // restore step number
             int stepStart = 0;
@@ -105,16 +76,16 @@ namespace NumSharpNetwork.Client.Scenarios
             int epoch;
             for (epoch = epochStart; epoch < numEpoches; epoch++)
             {
-                TrainOneEpoch(layer, stepStart, trainDataset, crossEntropy, trainState, statePath, stateFilenamePrefix);
+                TrainOneEpoch(layer, stepStart, trainDataset, crossEntropy, trainState);
                 // reset step to 0 on the new epoch
                 stepStart = 0;
                 // save epoch number
                 trainState["epoch"] = np.asarray(epoch);
-                SaveState(statePath, trainState, stateFilenamePrefix);
+                SaveState(trainState);
             }
         }
 
-        static void TrainOneEpoch(ILayer layer, int stepStart, DatasetLoader trainDataset, ILossFunction lossFunction, Dictionary<string, NDarray> trainState, string statePath, string stateFilenamePrefix)
+        private void TrainOneEpoch(ILayer layer, int stepStart, DatasetLoader trainDataset, ILossFunction lossFunction, Dictionary<string, NDarray> trainState)
         {
             // // DEBUG ONLY
             // double previousLoss = -1;
@@ -136,13 +107,6 @@ namespace NumSharpNetwork.Client.Scenarios
                 runningLoss += meanLoss;
                 NDarray lossResultGradient = lossFunction.GetLossResultGradient(predict, label);
 
-                // // DEBUG ONLY
-                // if (previousLoss != -1 && (loss.mean() > previousLoss + 2))
-                // {
-                //     throw new Exception("Sudden Climbing detected");
-                // }
-                // previousLoss = loss.mean();
-
                 layer.BackPropagate(lossResultGradient);
 
                 if (step % 10 == 0)
@@ -151,8 +115,8 @@ namespace NumSharpNetwork.Client.Scenarios
                     Console.WriteLine($"Step: {step} | Loss: {meanRunningLoss.ToString("0.0000")} | InstantLoss: {meanLoss.ToString("0.0000")}");
                     // save states
                     trainState["step"] = np.asarray(step);
-                    SaveState(statePath, trainState, stateFilenamePrefix);
-                    layer.Save(statePath);
+                    SaveState(trainState);
+                    layer.Save(this.StateFolderPath);
                 }
                 step++;
             }
