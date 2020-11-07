@@ -14,17 +14,17 @@ namespace NumSharpNetwork.Client
     {
         static void Main(string[] args)
         {
+            Scenario scenario = new Classification();
+            // Scenario scenario = new Regression();
+
             ManualResetEvent stopTrainingSignal = new ManualResetEvent(false);
 
-            // Regression regression = new Regression();
-            // regression.Train();
-
-            Classification classification = new Classification();
-
             Console.WriteLine("Start training...");
-            Task trainingTask = Task.Run(() => classification.Train(stopTrainingSignal));
+            Task trainingTask = new Task(() => scenario.Train(stopTrainingSignal));
+            trainingTask.ContinueWith(_ => Console.WriteLine("Done training."));
+            trainingTask.Start();
 
-            // user control
+            // safely quit program
             Console.ReadLine();
             Console.WriteLine("Stopping training...");
             stopTrainingSignal.Set();

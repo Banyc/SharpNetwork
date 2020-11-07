@@ -39,7 +39,7 @@ namespace NumSharpNetwork.Client.Scenarios
             // this.layers = new ImageLinearLayers(28, 28, 1, 10, optimizer);
             this.layers = new Cnn(28, 28, 1, 10, optimizer);
 
-            this.StateFolderPath = $"trainings/classification/{this.layers.Name}";
+            this.StateFolderPath = $"trainings/{this.Name}/{this.layers.Name}";
         }
 
         public override void Train(ManualResetEvent stopTrainingSignal)
