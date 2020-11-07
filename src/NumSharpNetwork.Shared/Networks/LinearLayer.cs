@@ -61,6 +61,7 @@ namespace NumSharpNetwork.Shared.Networks
 
             int batchSize = this.Record.Input.shape[0];
 
+            // https://sgugger.github.io/a-simple-neural-net-in-numpy.html
             // lossBiasesGradient.shape := [outputSize]
             NDarray lossBiasesGradient = lossResultGradient.mean(0);
             // lossWeightsGradient.shape := [inputSize, outputSize]
