@@ -15,6 +15,16 @@ Defining network in Numpy.NET. For more information, go to [this repository](htt
 
 Currently Windows only.
 
+## Run
+
+Suppose the `pwd` is the root folder of the project.
+
+```bash
+cd src/NumSharpNetwork.Client
+dotnet restore
+dotnet run
+```
+
 ## Notices
 
 - `lossXXXXXGradient.shape == XXXXX.shape` 
