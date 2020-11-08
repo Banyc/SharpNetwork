@@ -52,26 +52,30 @@ namespace NumSharpNetwork.Shared.Networks
         // return d_loss / d_input
         public NDarray BackPropagate(NDarray lossResultGradient)
         {
-            // // lossBiasesGradient.shape := [outputSize]
-            // // NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
-            // NDarray lossBiasesGradient = np.mean(lossResultGradient, 0);
-            // // lossWeightsGradient.shape := [inputSize, outputSize]
-            // NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
-            // // lossInputGradient.shape := [batchSize, inputSize]
-            // NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
+            // two algorithms below. Either way could work.
 
+            // zllz4
             int batchSize = this.Record.Input.shape[0];
-
-            // https://sgugger.github.io/a-simple-neural-net-in-numpy.html
             // lossBiasesGradient.shape := [outputSize]
-            NDarray lossBiasesGradient = lossResultGradient.mean(0);
+            // NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
+            NDarray lossBiasesGradient = np.mean(lossResultGradient, 0);
             // lossWeightsGradient.shape := [inputSize, outputSize]
-            NDarray lossWeightsGradient = np.matmul(
-                this.Record.Input.reshape(batchSize, -1, 1),
-                lossResultGradient.reshape(batchSize, 1, -1)
-            ).mean(0);
+            // NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
+            NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient) / batchSize;
             // lossInputGradient.shape := [batchSize, inputSize]
             NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
+
+            // // https://sgugger.github.io/a-simple-neural-net-in-numpy.html
+            // int batchSize = this.Record.Input.shape[0];
+            // // lossBiasesGradient.shape := [outputSize]
+            // NDarray lossBiasesGradient = lossResultGradient.mean(0);
+            // // lossWeightsGradient.shape := [inputSize, outputSize]
+            // NDarray lossWeightsGradient = np.matmul(
+            //     this.Record.Input.reshape(batchSize, -1, 1),
+            //     lossResultGradient.reshape(batchSize, 1, -1)
+            // ).mean(0);
+            // // lossInputGradient.shape := [batchSize, inputSize]
+            // NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
 
             this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient, isAddRegularization: false);
             // this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isAddRegularization: true);
