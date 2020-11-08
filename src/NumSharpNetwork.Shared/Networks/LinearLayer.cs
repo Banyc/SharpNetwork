@@ -53,7 +53,8 @@ namespace NumSharpNetwork.Shared.Networks
         public NDarray BackPropagate(NDarray lossResultGradient)
         {
             // // lossBiasesGradient.shape := [outputSize]
-            // NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
+            // // NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
+            // NDarray lossBiasesGradient = np.mean(lossResultGradient, 0);
             // // lossWeightsGradient.shape := [inputSize, outputSize]
             // NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
             // // lossInputGradient.shape := [batchSize, inputSize]
