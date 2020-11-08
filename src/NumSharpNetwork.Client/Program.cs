@@ -14,21 +14,38 @@ namespace NumSharpNetwork.Client
     {
         static void Main(string[] args)
         {
+            // change the training scenario here
             Scenario scenario = new Classification();
             // Scenario scenario = new Regression();
+
+            // don't receive exception
+            bool isDebug = false;
+            // // receive exception
+            // bool isDebug = true;
 
             ManualResetEvent stopTrainingSignal = new ManualResetEvent(false);
 
             Console.WriteLine("Start training...");
-            Task trainingTask = new Task(() => scenario.Train(stopTrainingSignal));
-            trainingTask.ContinueWith(_ => Console.WriteLine("Done training."));
-            trainingTask.Start();
+            if (isDebug)
+            {
+                scenario.Train(stopTrainingSignal);
+            }
+            else
+            {
+                Task trainingTask = new Task(() => scenario.Train(stopTrainingSignal));
+                trainingTask.ContinueWith((t) =>
+                {
+                    if (t.IsFaulted) throw t.Exception;
+                    if (t.IsCompleted) Console.WriteLine("Done training.");//optionally do some work);
+                });
+                trainingTask.Start();
 
-            // safely quit program
-            Console.ReadLine();
-            Console.WriteLine("Stopping training...");
-            stopTrainingSignal.Set();
-            trainingTask.Wait();
+                // safely quit program
+                Console.ReadLine();
+                Console.WriteLine("Stopping training...");
+                stopTrainingSignal.Set();
+                trainingTask.Wait();
+            }
         }
     }
 }
