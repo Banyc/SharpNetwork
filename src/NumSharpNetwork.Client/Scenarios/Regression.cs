@@ -29,7 +29,9 @@ namespace NumSharpNetwork.Client.Scenarios
 
         public override void Train(ManualResetEvent stopTrainingSignal)
         {
-            Train(layers, stopTrainingSignal);
+            // loss function
+            ILossFunction mse = new MeanSquaredError();
+            Train(layers, mse, stopTrainingSignal);
         }
 
         static (NDarray data, NDarray label) GetDataset(int batchSize, NDarray weights)
@@ -39,11 +41,8 @@ namespace NumSharpNetwork.Client.Scenarios
             return (data, label);
         }
 
-        private void Train(ILayer layer, ManualResetEvent stopTrainingSignal)
+        private void Train(ILayer layer, ILossFunction lossFunction, ManualResetEvent stopTrainingSignal)
         {
-            // loss function
-            ILossFunction mse = new MeanSquaredError();
-
             // load state
             Dictionary<string, NDarray> trainState = LoadState();
             if (trainState.ContainsKey("weights"))
@@ -74,8 +73,8 @@ namespace NumSharpNetwork.Client.Scenarios
                 // predict := the output from the feedforward process
                 NDarray predict = layer.FeedForward(data);
 
-                NDarray loss = mse.GetLoss(predict, label);
-                NDarray lossResultGradient = mse.GetLossResultGradient(predict, label);
+                NDarray loss = lossFunction.GetLoss(predict, label);
+                NDarray lossResultGradient = lossFunction.GetLossResultGradient(predict, label);
 
                 layer.BackPropagate(lossResultGradient);
 

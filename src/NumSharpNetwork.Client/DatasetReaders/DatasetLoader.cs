@@ -4,6 +4,7 @@ using Numpy;
 
 namespace NumSharpNetwork.Client.DatasetReaders
 {
+    // load Dataset from files
     public class DatasetLoader
     {
         public IDatasetReader Dataset { get; set; }
