@@ -37,7 +37,8 @@ namespace NumSharpNetwork.Client.Scenarios
             };
 
             // this.layers = new ImageLinearLayers(28, 28, 1, 10, optimizer);
-            this.layers = new Cnn2(28, 28, 1, 10, optimizer);
+            // this.layers = new Cnn2(28, 28, 1, 10, optimizer);
+            this.layers = new Cnn2Fast(28, 28, 1, 10, optimizer);
 
             this.StateFolderPath = $"trainings/{this.Name}/{this.layers.Name}";
         }

@@ -3,13 +3,13 @@ using NumSharpNetwork.Shared.Optimizers;
 
 namespace NumSharpNetwork.Shared.Networks.Wrappers
 {
-    public class Cnn1 : NetworkWrapper
+    public class Cnn1Fast : NetworkWrapper
     {
-        public override string Name { get; set; } = "CNN-1";
+        public override string Name { get; set; } = "CNN-1-Fast";
 
-        public Cnn1(int height, int width, int channels, int numClasses, IOptimizer optimizer)
+        public Cnn1Fast(int height, int width, int channels, int numClasses, IOptimizer optimizer)
         {
-            Convolution2DLayerSet convolution2DLayerSet1 = new Convolution2DLayerSet(channels, 2, optimizer, false, name: "Convolution2DLayerSet-1");
+            Convolution2DLayerSet convolution2DLayerSet1 = new Convolution2DLayerSet(channels, 2, optimizer, true, name: "Convolution2DLayerSet-1");
             FlattenLayer flatten = new FlattenLayer();
 
             int linearInputSize = (height / 2) * (width / 2) * 2;

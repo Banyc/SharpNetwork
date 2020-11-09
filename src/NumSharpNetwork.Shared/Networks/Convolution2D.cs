@@ -23,12 +23,14 @@ namespace NumSharpNetwork.Shared.Networks
         public NDarray ForwardResult { get; set; }
     }
 
-    public class Convolution2D : ILayer
+    public partial class Convolution2D : ILayer
     {
         public string Name { get; set; }
         public bool IsTrainMode { get; set; }
         public int KernelSize { get; set; }
         public int Stride { get; set; }
+        public bool IsIm2Col { get; set; } = false;
+
         // number of zeros to be padded to the input
         public int TopLeftPaddingSize
         {
@@ -47,6 +49,12 @@ namespace NumSharpNetwork.Shared.Networks
         }
         // FilterWeights.shape := [outputChannels, inputChannels, kernelSize, kernelSize]
         public NDarray FilterWeights { get; set; }
+        private int OutputChannels { get => this.FilterWeights.shape[0]; }
+        private int InputChannels { get => this.FilterWeights.shape[1]; }
+        private int FilterHeight { get => this.FilterWeights.shape[2]; }
+        private int FilterWidth { get => this.FilterWeights.shape[3]; }
+
+        // Biases.shape = [outputChannels]
         public NDarray Biases { get; set; }
         public IOptimizer Optimizer { get; set; }
         private Convolution2DRecord Record { get; set; } = new Convolution2DRecord();
@@ -70,34 +78,26 @@ namespace NumSharpNetwork.Shared.Networks
         // return.shape = [N, outputChannels, H, W]
         public NDarray FeedForward(NDarray input)
         {
+            if (this.IsIm2Col)
+            {
+                return Im2ColFeedForward(input);
+            }
             // pad zeros on the borders of the input
-            int[,] padWidth = new int[,]{
-                {0, 0},
-                {0, 0},
-                {this.TopLeftPaddingSize, this.BottomRightPaddingSize},
-                {this.TopLeftPaddingSize, this.BottomRightPaddingSize}
-            };
-            NDarray pad_width = np.array(padWidth);
-            // height and width are padded with zeros
-            NDarray paddedInput = np.pad(input, pad_width, "constant");
+            NDarray paddedInput = GetPaddedInput(input);
 
             int batchSize = input.shape[0];
-            int outputChannels = this.FilterWeights.shape[0];
-            int inputChannels = this.FilterWeights.shape[1];
-            int filterHeight = this.FilterWeights.shape[2];
-            int filterWidth = this.FilterWeights.shape[3];
             int paddedInputHeight = paddedInput.shape[2];
             int paddedInputWidth = paddedInput.shape[3];
 
-            int resultHeight = (paddedInputHeight - filterHeight + 1) / this.Stride;
-            int resultWidth = (paddedInputWidth - filterWidth + 1) / this.Stride;
+            int resultHeight = (paddedInputHeight - this.FilterHeight + 1) / this.Stride;
+            int resultWidth = (paddedInputWidth - this.FilterWidth + 1) / this.Stride;
 
             // allocate memory for result
             NDarray result = np.empty(
                 // batch size
                 batchSize,
                 // output Channels
-                outputChannels,
+                this.OutputChannels,
                 // height = (paddedInput.height - FilterWeights.height + 1) / stride
                 resultHeight,
                 // width = (paddedInput.width - FilterWeights.width + 1) / stride
@@ -111,15 +111,15 @@ namespace NumSharpNetwork.Shared.Networks
             // ex: [5] * [2, 3] == [10, 15]  // in the same axis but with different sizes
             NDarray filterWeights5D = this.FilterWeights.reshape(
                 1,
-                outputChannels,
-                inputChannels,
-                filterHeight,
-                filterWidth
+                this.OutputChannels,
+                this.InputChannels,
+                this.FilterHeight,
+                this.FilterWidth
             );
             NDarray paddedInput5D = paddedInput.reshape(
                 batchSize,
                 1,
-                inputChannels,
+                this.InputChannels,
                 paddedInputHeight,
                 paddedInputWidth
             );
@@ -137,8 +137,8 @@ namespace NumSharpNetwork.Shared.Networks
                         :, 
                         :, 
                         :, 
-                        {this.Stride * heightIndex}:{(this.Stride * heightIndex) + filterHeight}, 
-                        {this.Stride * widthIndex}:{(this.Stride * widthIndex) + filterWidth}"
+                        {this.Stride * heightIndex}:{(this.Stride * heightIndex) + this.FilterHeight}, 
+                        {this.Stride * widthIndex}:{(this.Stride * widthIndex) + this.FilterWidth}"
                     ];
 
                     // multiply the field with filterWeights
@@ -176,6 +176,10 @@ namespace NumSharpNetwork.Shared.Networks
 
         public NDarray BackPropagate(NDarray lossResultGradient)
         {
+            if (this.IsIm2Col)
+            {
+                return Im2ColBackPropagate(lossResultGradient);
+            }
             int batchSize = this.Record.Input.shape[0];
             int outputChannels = this.Record.Weights.shape[0];
             int inputChannels = this.Record.Weights.shape[1];
@@ -239,13 +243,7 @@ namespace NumSharpNetwork.Shared.Networks
                 }
             }
 
-            NDarray lossInputGradient = paddedLossInputGradient[
-                $@"
-                :, 
-                :, 
-                {this.TopLeftPaddingSize}:{-this.BottomRightPaddingSize}, 
-                {this.TopLeftPaddingSize}:{-this.BottomRightPaddingSize}"
-            ];
+            NDarray lossInputGradient = GetUnpaddedInput(paddedLossInputGradient);
 
             // since, in the feedforward process, the same biases is been used to produce many batches and many channels in the result,
             // the partial gradients should also be added up
@@ -280,6 +278,32 @@ namespace NumSharpNetwork.Shared.Networks
             {
                 this.Biases = np.load(biasesPath);
             }
+        }
+
+        private NDarray GetPaddedInput(NDarray input)
+        {
+            // pad zeros on the borders of the input
+            int[,] padWidth = new int[,]{
+                {0, 0},
+                {0, 0},
+                {this.TopLeftPaddingSize, this.BottomRightPaddingSize},
+                {this.TopLeftPaddingSize, this.BottomRightPaddingSize}
+            };
+            NDarray pad_width = np.array(padWidth);
+            // height and width are padded with zeros
+            NDarray paddedInput = np.pad(input, pad_width, "constant");
+            return paddedInput;
+        }
+
+        private NDarray GetUnpaddedInput(NDarray paddedInput)
+        {
+            return paddedInput[
+                $@"
+                :, 
+                :, 
+                {this.TopLeftPaddingSize}:{-this.BottomRightPaddingSize}, 
+                {this.TopLeftPaddingSize}:{-this.BottomRightPaddingSize}"
+            ];
         }
     }
 }
