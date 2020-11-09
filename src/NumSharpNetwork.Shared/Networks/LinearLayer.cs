@@ -57,23 +57,25 @@ namespace NumSharpNetwork.Shared.Networks
             // zllz4
             int batchSize = this.Record.Input.shape[0];
             // lossBiasesGradient.shape := [outputSize]
-            // NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
-            NDarray lossBiasesGradient = np.mean(lossResultGradient, 0);
+            NDarray lossBiasesGradient = np.sum(lossResultGradient, 0);
+            // NDarray lossBiasesGradient = np.mean(lossResultGradient, 0);  // the mean process has been implemented at CrossEntropy
             // lossWeightsGradient.shape := [inputSize, outputSize]
-            // NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
-            NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient) / batchSize;
+            NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient);
+            // NDarray lossWeightsGradient = np.matmul(this.Record.Input.T, lossResultGradient) / batchSize;  // the mean process has been implemented at CrossEntropy
             // lossInputGradient.shape := [batchSize, inputSize]
             NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
 
             // // https://sgugger.github.io/a-simple-neural-net-in-numpy.html
             // int batchSize = this.Record.Input.shape[0];
             // // lossBiasesGradient.shape := [outputSize]
-            // NDarray lossBiasesGradient = lossResultGradient.mean(0);
+            // // NDarray lossBiasesGradient = lossResultGradient.mean(0);  // the mean process has been implemented at CrossEntropy
+            // NDarray lossBiasesGradient = lossResultGradient.sum(0);
             // // lossWeightsGradient.shape := [inputSize, outputSize]
             // NDarray lossWeightsGradient = np.matmul(
             //     this.Record.Input.reshape(batchSize, -1, 1),
             //     lossResultGradient.reshape(batchSize, 1, -1)
-            // ).mean(0);
+            // // ).mean(0);
+            // ).sum(0);  // the mean process has been implemented at CrossEntropy
             // // lossInputGradient.shape := [batchSize, inputSize]
             // NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
 

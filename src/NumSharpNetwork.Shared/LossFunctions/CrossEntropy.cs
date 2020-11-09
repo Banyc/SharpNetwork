@@ -86,6 +86,10 @@ namespace NumSharpNetwork.Shared.LossFunctions
 
             // lossResultGradient = - result_i * (1 / label_i)
             NDarray lossResultGradient = np.where(label >= 1, -1 / clippedResult, np.asarray(0));
+            int batchSize = clippedResult.shape[0];
+            // https://stats.stackexchange.com/a/183990
+            // the final `lossResultGradient` is now independent of the batch size
+            lossResultGradient /= batchSize;
             return lossResultGradient;
         }
     }
