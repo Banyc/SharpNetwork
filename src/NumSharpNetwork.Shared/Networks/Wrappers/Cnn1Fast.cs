@@ -9,10 +9,10 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
 
         public Cnn1Fast(int height, int width, int channels, int numClasses, IOptimizer optimizer)
         {
-            Convolution2DLayerSet convolution2DLayerSet1 = new Convolution2DLayerSet(channels, 2, optimizer, true, name: "Convolution2DLayerSet-1");
+            Convolution2DLayerSet convolution2DLayerSet1 = new Convolution2DLayerSet(channels, 32, optimizer, true, false, name: "Convolution2DLayerSet-1");
             FlattenLayer flatten = new FlattenLayer();
 
-            int linearInputSize = (height / 2) * (width / 2) * 2;
+            int linearInputSize = (height / 1) * (width / 1) * 32;
 
             LinearLayer linear1 = new LinearLayer(optimizer, linearInputSize, numClasses, name: $"{this.Name}.LinearLayer1");
 
