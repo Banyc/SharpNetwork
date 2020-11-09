@@ -27,6 +27,7 @@ dotnet run
 
 ## Notices
 
+- `lossXXXXXGradient` indicates `d_loss / d_XXXXX`
 - `lossXXXXXGradient.shape == XXXXX.shape` 
 
 ## Credit
