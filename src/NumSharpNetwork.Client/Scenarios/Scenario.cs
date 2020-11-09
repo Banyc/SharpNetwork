@@ -122,7 +122,7 @@ namespace NumSharpNetwork.Client.Scenarios
                     int numSamples = trainDataset.BatchSize;
                     double accuracy = numTrue / numSamples;
                     // get loss
-                    double meanRunningLoss = runningLoss / (step + 1);
+                    double meanRunningLoss = runningLoss / (step - stepStart + 1);
                     // print
                     Console.WriteLine($"Step: {step} | Loss: {meanRunningLoss.ToString("0.0000")} | InstantLoss: {meanLoss.ToString("0.0000")} | InstantAccuracy: {accuracy.ToString("0.000")}");
                     // save states
