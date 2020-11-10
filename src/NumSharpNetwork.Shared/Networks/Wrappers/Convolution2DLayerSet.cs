@@ -12,9 +12,14 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             {
                 IsIm2Col = isIm2Col
             };
+            BatchNormalization batchNormalization = new BatchNormalization(inputChannels, optimizer)
+            {
+                IsSpatial = true
+            };
             ReLULayer reLU = new ReLULayer();
 
             this.Layers.Add(convolution2D);
+            this.Layers.Add(batchNormalization);
             this.Layers.Add(reLU);
             if (hasPooling)
             {
