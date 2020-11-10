@@ -9,7 +9,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
 
         public ThreeLinearLayers()
         {
-            BasicOptimizer optimizer1 = new BasicOptimizer()
+            BatchGradientDescent optimizer1 = new BatchGradientDescent()
             {
                 LearningRate = np.asarray(0.1)
             };
@@ -17,7 +17,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             {
                 Name = "linear-layer-1"
             };
-            BasicOptimizer optimizer2 = new BasicOptimizer()
+            BatchGradientDescent optimizer2 = new BatchGradientDescent()
             {
                 LearningRate = np.asarray(0.1)
             };
@@ -25,7 +25,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             {
                 Name = "linear-layer-2"
             };
-            BasicOptimizer optimizer3 = new BasicOptimizer()
+            BatchGradientDescent optimizer3 = new BatchGradientDescent()
             {
                 LearningRate = np.asarray(0.1)
             };

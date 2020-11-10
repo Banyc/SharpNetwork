@@ -23,13 +23,14 @@ namespace NumSharpNetwork.Client.Scenarios
             this.Name = "Classification-1";
 
             this.batchSize = 16;
+            // this.batchSize = 128;
 
             // initialize DatasetLoader trainDataset here
             DatasetLoaderFactory datasetLoaderFactory = new DatasetLoaderFactory();
 
             this.trainDataset = datasetLoaderFactory.GetMnist(this.batchSize);
 
-            BasicOptimizer optimizer = new BasicOptimizer()
+            BatchGradientDescent optimizer = new BatchGradientDescent()
             {
                 // LearningRate = np.asarray(0.0001)
                 LearningRate = np.asarray(0.001)
@@ -38,7 +39,8 @@ namespace NumSharpNetwork.Client.Scenarios
 
             // this.layers = new ImageLinearLayers(28, 28, 1, 10, optimizer);
             // this.layers = new Cnn2(28, 28, 1, 10, optimizer);
-            this.layers = new Cnn2Fast(28, 28, 1, 10, optimizer);
+            // this.layers = new Cnn2Fast(28, 28, 1, 10, optimizer);
+            this.layers = new Cnn1Fast(28, 28, 1, 10, optimizer);
 
             this.StateFolderPath = $"trainings/{this.Name}/{this.layers.Name}";
         }

@@ -2,11 +2,12 @@ using Numpy;
 
 namespace NumSharpNetwork.Shared.Optimizers
 {
-    public class BasicOptimizer : IOptimizer
+    // Vanilla gradient descent
+    public class BatchGradientDescent : IOptimizer
     {
         public NDarray LearningRate { get; set; }
         public NDarray Regularization { get; set; } = np.asarray(0.1);
-        public BasicOptimizer()
+        public BatchGradientDescent()
         {
         }
         public NDarray Optimize(NDarray weights, NDarray lossWeightGradients, bool isAddRegularization)
