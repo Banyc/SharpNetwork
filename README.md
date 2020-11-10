@@ -34,3 +34,7 @@ dotnet run
 
 - The origin/inspiring project - <https://github.com/zllz4/numpy-network>
 - A good source of examples - <https://sgugger.github.io/a-simple-neural-net-in-numpy.html>
+
+## Todo
+
+- [ ] Add test cases for each layer
