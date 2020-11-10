@@ -13,6 +13,7 @@ namespace NumSharpNetwork.Client.Scenarios
     {
         public string Name { get; set; }
         public string StateFolderPath { get; set; }
+        private int Epoch { get; set; }
 
         public abstract void Train(ManualResetEvent stopTrainingSignal);
 
@@ -66,8 +67,7 @@ namespace NumSharpNetwork.Client.Scenarios
             }
 
             // train loop
-            int epoch;
-            for (epoch = epochStart; epoch < numEpochs; epoch++)
+            for (this.Epoch = epochStart; this.Epoch < numEpochs; this.Epoch++)
             {
                 if (stopTrainingSignal.WaitOne(0))
                 {
@@ -77,7 +77,7 @@ namespace NumSharpNetwork.Client.Scenarios
                 // reset step to 0 on the new epoch
                 stepStart = 0;
                 // save epoch number
-                trainState["epoch"] = np.asarray(epoch);
+                trainState["epoch"] = np.asarray(this.Epoch);
                 SaveState(trainState);
             }
         }
@@ -124,7 +124,7 @@ namespace NumSharpNetwork.Client.Scenarios
                     // get loss
                     double meanRunningLoss = runningLoss / (step - stepStart + 1);
                     // print
-                    Console.WriteLine($"Step: {step} | Loss: {meanRunningLoss.ToString("0.0000")} | InstantLoss: {meanLoss.ToString("0.0000")} | InstantAccuracy: {accuracy.ToString("0.000")}");
+                    Console.WriteLine($"Epoch: {this.Epoch} | Step: {step} | Loss: {meanRunningLoss.ToString("0.0000")} | InstantLoss: {meanLoss.ToString("0.0000")} | InstantAccuracy: {accuracy.ToString("0.000")}");
                     // save states
                     trainState["step"] = np.asarray(step);
                     SaveState(trainState);
