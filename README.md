@@ -4,6 +4,12 @@ A deep dive into neural networks.
 
 Defining network in Numpy.NET. For more information, go to [this repository](https://github.com/zllz4/numpy-network)
 
+## Screenshot
+
+Convolution on MNIST:
+
+![](img/2020-11-10-22-12-00.png)
+
 ## Purpose
 
 - For education rather than for production.
