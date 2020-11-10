@@ -61,31 +61,64 @@ namespace NumSharpNetwork.Shared.Networks
                 lossResultGradient = CompressInput(lossResultGradient);
             }
 
-            NDarray lossBetaGradient = lossResultGradient.sum(0);
-            NDarray lossGammaGradient = (lossResultGradient * this.Record.StandardScore).sum(0);
+            NDarray dx = BackPropagateZllz4(lossResultGradient);
+            NDarray lossInputGradient = dx;
 
-            // d_loss / d_x
-            int batchSize = lossResultGradient.shape[0];
-            double meanInputGradient = 1.0 / batchSize;
-            double varianceInputGradient = (2.0 / batchSize) * (1 - meanInputGradient);
-            NDarray resultInputGradient =
-                this.Gamma *
-                (
-                    (
-                        (this.Record.Input - this.Record.Mean) *
-                        (-0.5 * Math.Pow(varianceInputGradient - this.Epsilon, -3 / 2))
-                    ) +
-                    (
-                        (1 - meanInputGradient) *
-                        (
-                            1.0 / np.sqrt(this.Record.Variance - this.Epsilon)
-                        )
-                    )
-                );
-            NDarray lossInputGradient = lossResultGradient * resultInputGradient;
+            // NDarray lossBetaGradient = lossResultGradient.sum(0);
+            // NDarray lossGammaGradient = (lossResultGradient * this.Record.StandardScore).sum(0);
 
-            this.Beta = this.Optimizer.Optimize(this.Beta, lossBetaGradient, isAddRegularization: false);
-            this.Gamma = this.Optimizer.Optimize(this.Gamma, lossGammaGradient, isAddRegularization: false);
+            // // d_loss / d_x
+            // int batchSize = lossResultGradient.shape[0];
+            // double meanInputGradient = 1.0 / batchSize;
+            // double varianceInputGradient = (2.0 / batchSize) * (1 - meanInputGradient);
+            // NDarray resultInputGradient =
+            //     this.Gamma *
+            //     (
+            //         (
+            //             (this.Record.Input - this.Record.Mean) *
+            //             (-0.5 * Math.Pow(varianceInputGradient - this.Epsilon, -3 / 2))
+            //         ) +
+            //         (
+            //             (1 - meanInputGradient) *
+            //             (
+            //                 1.0 / np.sqrt(this.Record.Variance - this.Epsilon)
+            //             )
+            //         )
+            //     );
+            // NDarray lossInputGradient = lossResultGradient * resultInputGradient;
+
+            // // // DEBUG
+            // // if (!double.IsFinite(meanInputGradient))
+            // // {
+            // //     throw new Exception();
+            // // }
+            // // if (double.IsNaN(meanInputGradient))
+            // // {
+            // //     throw new Exception();
+            // // }
+            // // if (!double.IsFinite(varianceInputGradient))
+            // // {
+            // //     throw new Exception();
+            // // }
+            // // if (double.IsNaN(varianceInputGradient))
+            // // {
+            // //     throw new Exception();
+            // // }
+            // // if (np.isnan(resultInputGradient).any())
+            // // {
+            // //     throw new Exception();
+            // // }
+            // // if (np.isinf(resultInputGradient).any())
+            // // {
+            // //     throw new Exception();
+            // // }
+            // // if (!np.equal(dx, lossInputGradient).all())
+            // // {
+            // //     throw new Exception();
+            // // }
+
+            // this.Beta = this.Optimizer.Optimize(this.Beta, lossBetaGradient, isAddRegularization: false);
+            // this.Gamma = this.Optimizer.Optimize(this.Gamma, lossGammaGradient, isAddRegularization: false);
 
             // restore the input
             if (this.IsSpatial)
@@ -180,6 +213,47 @@ namespace NumSharpNetwork.Shared.Networks
             NDarray transposed = compressedInput.reshape(batchSize, height, width, inputChannels);
             NDarray expandedInput = np.transpose(transposed, new int[] { 0, 3, 1, 2 });
             return expandedInput;
+        }
+
+        private NDarray BackPropagateZllz4(NDarray dout)
+        {
+            var x = this.Record.Input;
+            var gamma = this.Record.Gamma;
+            var beta = this.Record.Beta;
+            var mean = this.Record.Mean;
+            var variance = this.Record.Variance;
+            var x_hat = this.Record.StandardScore;
+            var eps = this.Epsilon;
+
+            // gamma 的梯度
+            var dgamma = np.sum(dout * x_hat, 0);
+            // beta 的梯度
+            var dbeta =  np.sum(dout, 0);
+            // x_hat 对 dout 的梯度
+            var dx_hat = dout * gamma.reshape((1,-1));
+            // x 对 x_hat 的梯度
+            var dxi_of_x_hat = dx_hat / np.power( (variance.reshape((1,-1)) + eps), np.asarray(0.5));
+            // mean 对 x_hat 的梯度
+            var dmean_of_x_hat = np.sum(-dx_hat / np.power( (variance.reshape((1,-1)) + eps), np.asarray(0.5)), 0) ;
+            // var 对 x_hat 的梯度
+            var dvar_of_x_hat = np.sum(dx_hat * (-1/2) * (np.power((variance.reshape((1,-1)) + eps), np.asarray(-1.5))) * (x - mean.reshape((1, -1))), 0);
+            // x 对 mean 的梯度
+            var dxi_of_mean = 1/x.shape[0] * dmean_of_x_hat * np.ones_like(x);
+            // x 对 var 的梯度
+            var dxi_of_var = 1/x.shape[0] * 2 * (x-mean.reshape((1,-1))) * dvar_of_x_hat.reshape((1,-1))  ;
+            // x 对 dout 的梯度，三个加起来
+            var dxi = dxi_of_x_hat + dxi_of_mean + dxi_of_var;
+            // 得到 dx
+            var dx = dxi;
+
+            // 更新参数
+            // self.gamma = self.optimizer.optim(self.gamma, dgamma)
+            // self.beta = self.optimizer.optim(self.beta, dbeta)
+
+            this.Beta = this.Optimizer.Optimize(this.Beta, dbeta, isAddRegularization: false);
+            this.Gamma = this.Optimizer.Optimize(this.Gamma, dgamma, isAddRegularization: false);
+
+            return dx;
         }
     }
 }

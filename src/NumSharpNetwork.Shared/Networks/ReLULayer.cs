@@ -18,6 +18,12 @@ namespace NumSharpNetwork.Shared.Networks
 
         public NDarray FeedForward(NDarray input)
         {
+            // DEBUG
+            // check
+            // if ((input <= 0).all())
+            // {
+            //     throw new System.Exception("All input elements are negative!");
+            // }
             this.PreviousInput = input;
             NDarray result = np.maximum(np.asarray(0), input);
             return result;
