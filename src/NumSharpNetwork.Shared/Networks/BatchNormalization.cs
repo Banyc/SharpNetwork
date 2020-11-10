@@ -40,10 +40,11 @@ namespace NumSharpNetwork.Shared.Networks
 
         private BatchNormalizationRecord Record { get; set; } = new BatchNormalizationRecord();
 
-        public BatchNormalization(int inputChannels, IOptimizer optimizer)
+        public BatchNormalization(int inputChannels, IOptimizer optimizer, string name = "BatchNormalization")
         {
             // this.InputChannels = inputChannels;
             this.Optimizer = optimizer;
+            this.Name = name;
 
             this.Gamma = np.ones(inputChannels);
             this.Beta = np.zeros(inputChannels);
