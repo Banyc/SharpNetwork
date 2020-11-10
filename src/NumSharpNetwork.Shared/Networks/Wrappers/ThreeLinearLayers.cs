@@ -9,7 +9,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
 
         public ThreeLinearLayers()
         {
-            BatchGradientDescent optimizer1 = new BatchGradientDescent()
+            StochasticGradientDescent optimizer1 = new StochasticGradientDescent()
             {
                 LearningRate = np.asarray(0.1)
             };
@@ -17,7 +17,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             {
                 Name = "linear-layer-1"
             };
-            BatchGradientDescent optimizer2 = new BatchGradientDescent()
+            StochasticGradientDescent optimizer2 = new StochasticGradientDescent()
             {
                 LearningRate = np.asarray(0.1)
             };
@@ -25,7 +25,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             {
                 Name = "linear-layer-2"
             };
-            BatchGradientDescent optimizer3 = new BatchGradientDescent()
+            StochasticGradientDescent optimizer3 = new StochasticGradientDescent()
             {
                 LearningRate = np.asarray(0.1)
             };

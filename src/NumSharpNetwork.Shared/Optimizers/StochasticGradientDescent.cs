@@ -2,8 +2,8 @@ using Numpy;
 
 namespace NumSharpNetwork.Shared.Optimizers
 {
-    // Vanilla gradient descent
-    public class BatchGradientDescent : IOptimizer
+    // SGD
+    public class StochasticGradientDescent : IOptimizer
     {
         public NDarray LearningRate { get; set; }
         public NDarray Regularization { get; set; } = np.asarray(0.1);

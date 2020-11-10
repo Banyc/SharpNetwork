@@ -30,7 +30,7 @@ namespace NumSharpNetwork.Client.Scenarios
 
             this.trainDataset = datasetLoaderFactory.GetMnist(this.batchSize);
 
-            BatchGradientDescent optimizer = new BatchGradientDescent()
+            StochasticGradientDescent optimizer = new StochasticGradientDescent()
             {
                 // LearningRate = np.asarray(0.0001)
                 LearningRate = np.asarray(0.001)
