@@ -7,7 +7,7 @@ namespace NumSharpNetwork.Shared.Optimizers
     {
         public NDarray LearningRate { get; set; }
         public NDarray Regularization { get; set; } = np.asarray(0.1);
-        public BatchGradientDescent()
+        public StochasticGradientDescent()
         {
         }
         public NDarray Optimize(NDarray weights, NDarray lossWeightGradients, bool isAddRegularization)
