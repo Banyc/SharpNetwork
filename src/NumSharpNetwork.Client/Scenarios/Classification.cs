@@ -32,13 +32,18 @@ namespace NumSharpNetwork.Client.Scenarios
 
             OptimizerFactory optimizerFactory = new OptimizerFactory()
             {
-                Type = OptimizerType.SGDMomentum
+                Type = OptimizerType.StochasticGradientDescent
             };
 
-            // this.layers = new ImageLinearLayers(28, 28, 1, 10, optimizerFactory);
-            // this.layers = new Cnn2(28, 28, 1, 10, optimizerFactory);
-            // this.layers = new Cnn2Fast(28, 28, 1, 10, optimizerFactory);
-            this.layers = new Cnn1Fast(28, 28, 1, 10, optimizerFactory);
+            // this.layers = new ImageLinearLayers(
+            // this.layers = new Cnn2(
+            // this.layers = new Cnn2Fast(
+            this.layers = new Cnn1Fast(
+                this.trainDataset.Dataset.Height,
+                this.trainDataset.Dataset.Width,
+                this.trainDataset.Dataset.Channels,
+                this.trainDataset.Dataset.ClassNames.Count,
+                optimizerFactory);
 
             this.StateFolderPath = $"trainings/{this.Name}/{this.layers.Name}";
         }
@@ -50,7 +55,7 @@ namespace NumSharpNetwork.Client.Scenarios
             {
                 LabelType = CrossEntropyLabelType.Embedded
             };
-            Train(layers, crossEntropy, this.trainDataset, 5, stopTrainingSignal);
+            Train(layers, crossEntropy, this.trainDataset, this.testDataset, 5, stopTrainingSignal);
         }
     }
 }

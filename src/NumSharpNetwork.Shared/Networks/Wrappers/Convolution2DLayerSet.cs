@@ -12,7 +12,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             {
                 IsIm2Col = isIm2Col
             };
-            BatchNormalization batchNormalization = new BatchNormalization(inputChannels, optimizerFactory, name: $"{this.Name}.BatchNormalization")
+            BatchNormalization batchNormalization = new BatchNormalization(outputChannels, optimizerFactory, name: $"{this.Name}.BatchNormalization")
             {
                 IsSpatial = true
             };
