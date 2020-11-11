@@ -16,7 +16,7 @@ namespace NumSharpNetwork.Client.DatasetReaders
             this.BatchSize = batchSize;
         }
 
-        public IEnumerable<(NDarray dataBatches, NDarray embeddedLabelBatches)> GetBatches(int startStep = 0, bool isRandowm = true)
+        public IEnumerable<(NDarray dataBatches, NDarray embeddedLabelBatches)> GetBatches(int startStep = 0, bool isRandom = true)
         {
             int numBatches = this.Dataset.Dataset.Count / this.BatchSize;
             int batchIndex;
@@ -30,7 +30,7 @@ namespace NumSharpNetwork.Client.DatasetReaders
                 {
                     NDarray data = null;
                     int classIndex = -1;
-                    if (!isRandowm)
+                    if (!isRandom)
                     {
                         (data, classIndex) = this.Dataset.GetImageLabelPair(dataIndexOffset + baseDataIndex);
                     }
