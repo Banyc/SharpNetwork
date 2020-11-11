@@ -8,11 +8,17 @@ namespace NumSharpNetwork.Shared.Optimizers
         {
             StochasticGradientDescent optimizer = new StochasticGradientDescent()
             {
-                // LearningRate = np.asarray(0.0001)
-                LearningRate = np.asarray(0.001)
-                // LearningRate = np.asarray(0.01)
+                // LearningRate = 0.0001
+                LearningRate = 0.001
+                // LearningRate = 0.01
             };
             return optimizer;
+        }
+
+        public SGDMomentum GetSGDMomentumOptimizer()
+        {
+            SGDMomentum sGDMomentum = new SGDMomentum();
+            return sGDMomentum;
         }
     }
 }
