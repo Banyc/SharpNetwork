@@ -5,12 +5,12 @@ namespace NumSharpNetwork.Shared.Optimizers
     // SGD
     public class StochasticGradientDescent : IOptimizer
     {
-        public NDarray LearningRate { get; set; }
+        public double LearningRate { get; set; } = 0.01;
         public NDarray Regularization { get; set; } = np.asarray(0.1);
         public StochasticGradientDescent()
         {
         }
-        public NDarray Optimize(NDarray weights, NDarray lossWeightGradients, bool isAddRegularization)
+        public NDarray Optimize(NDarray weights, NDarray lossWeightGradients)
         {
             // // DEBUG ONLY
             // // check
@@ -19,14 +19,7 @@ namespace NumSharpNetwork.Shared.Optimizers
             //     throw new System.Exception("NaN detected!");
             // }
             NDarray newWeights = null;
-            if (isAddRegularization)
-            {
-                newWeights = weights - this.LearningRate * (lossWeightGradients + weights * this.Regularization);
-            }
-            else
-            {
-                newWeights = weights - this.LearningRate * lossWeightGradients;
-            }
+            newWeights = weights - this.LearningRate * lossWeightGradients;
             // // DEBUG ONLY
             // // check
             // if (np.isnan(newWeights).any())

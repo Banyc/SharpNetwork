@@ -11,7 +11,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
         {
             StochasticGradientDescent optimizer1 = new StochasticGradientDescent()
             {
-                LearningRate = np.asarray(0.1)
+                LearningRate = 0.1
             };
             LinearLayer linearLayer1 = new LinearLayer(optimizer1, 10, 1000)
             {
@@ -19,7 +19,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             };
             StochasticGradientDescent optimizer2 = new StochasticGradientDescent()
             {
-                LearningRate = np.asarray(0.1)
+                LearningRate = 0.1
             };
             LinearLayer linearLayer2 = new LinearLayer(optimizer2, 1000, 500)
             {
@@ -27,7 +27,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             };
             StochasticGradientDescent optimizer3 = new StochasticGradientDescent()
             {
-                LearningRate = np.asarray(0.1)
+                LearningRate = 0.1
             };
             LinearLayer linearLayer3 = new LinearLayer(optimizer3, 500, 1)
             {

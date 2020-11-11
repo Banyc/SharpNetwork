@@ -250,8 +250,8 @@ namespace NumSharpNetwork.Shared.Networks
             NDarray lossBiasesGradient = np.sum(lossResultGradient, new int[] { 0, 2, 3 });
 
             // update
-            this.FilterWeights = this.Optimizer.Optimize(this.FilterWeights, lossWeightsGradient, true);
-            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient, false);
+            this.FilterWeights = this.Optimizer.Optimize(this.FilterWeights, lossWeightsGradient);
+            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient);
 
             return lossInputGradient;
         }

@@ -118,8 +118,8 @@ namespace NumSharpNetwork.Shared.Networks
             // //     throw new Exception();
             // // }
 
-            // this.Beta = this.Optimizer.Optimize(this.Beta, lossBetaGradient, isAddRegularization: false);
-            // this.Gamma = this.Optimizer.Optimize(this.Gamma, lossGammaGradient, isAddRegularization: false);
+            // this.Beta = this.Optimizer.Optimize(this.Beta, lossBetaGradient);
+            // this.Gamma = this.Optimizer.Optimize(this.Gamma, lossGammaGradient);
 
             // restore the input
             if (this.IsSpatial)
@@ -251,8 +251,8 @@ namespace NumSharpNetwork.Shared.Networks
             // self.gamma = self.optimizer.optim(self.gamma, dgamma)
             // self.beta = self.optimizer.optim(self.beta, dbeta)
 
-            this.Beta = this.Optimizer.Optimize(this.Beta, dbeta, isAddRegularization: false);
-            this.Gamma = this.Optimizer.Optimize(this.Gamma, dgamma, isAddRegularization: false);
+            this.Beta = this.Optimizer.Optimize(this.Beta, dbeta);
+            this.Gamma = this.Optimizer.Optimize(this.Gamma, dgamma);
 
             return dx;
         }
