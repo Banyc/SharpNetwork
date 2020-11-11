@@ -46,7 +46,7 @@ namespace NumSharpNetwork.Client.Scenarios
             }
         }
 
-        protected void Train(ILayer layer, ILossFunction lossFunction, DatasetLoader trainDataset, int numEpochs, ManualResetEvent stopTrainingSignal)
+        protected void Train(ILayer layer, ILossFunction lossFunction, DatasetLoader trainDataset, DatasetLoader validationDataset, int numEpochs, ManualResetEvent stopTrainingSignal)
         {
             // load state
             Dictionary<string, NDarray> trainState = LoadState();
@@ -73,7 +73,10 @@ namespace NumSharpNetwork.Client.Scenarios
                 {
                     return;
                 }
+                // train
                 TrainOneEpoch(layer, stepStart, trainDataset, lossFunction, trainState, stopTrainingSignal);
+                // validate
+                Validate(layer, validationDataset, lossFunction, stopTrainingSignal);
                 // reset step to 0 on the new epoch
                 stepStart = 0;
                 // save epoch number
@@ -116,15 +119,11 @@ namespace NumSharpNetwork.Client.Scenarios
                 if (step % 10 == 0)
                 {
                     // get accuracy
-                    NDarray maxPredict = np.argmax(predict, 1);
-                    NDarray trueMap = np.equal(maxPredict.reshape(trainDataset.BatchSize, 1), label);
-                    double numTrue = trueMap.sum().asscalar<double>();
-                    int numSamples = trainDataset.BatchSize;
-                    double accuracy = numTrue / numSamples;
+                    double accuracy = GetAccuracy(trainDataset.BatchSize, predict, label);
                     // get loss
                     double meanRunningLoss = runningLoss / (step - stepStart + 1);
                     // print
-                    Console.WriteLine($"Epoch: {this.Epoch} | Step: {step} | Loss: {meanRunningLoss.ToString("0.0000")} | InstantLoss: {meanLoss.ToString("0.0000")} | InstantAccuracy: {accuracy.ToString("0.000")}");
+                    Console.WriteLine($"Epoch: {this.Epoch} | Step: {step} | Loss: {meanRunningLoss:0.0000} | InstantLoss: {meanLoss:0.0000} | InstantAccuracy: {accuracy:0.000}");
                     // save states
                     trainState["step"] = np.asarray(step);
                     SaveState(trainState);
@@ -132,6 +131,35 @@ namespace NumSharpNetwork.Client.Scenarios
                 }
                 step++;
             }
+        }
+
+        protected void Validate(ILayer layer, DatasetLoader validationDataset, ILossFunction lossFunction, ManualResetEvent stopTrainingSignal)
+        {
+            foreach ((NDarray data, NDarray label) in validationDataset.GetBatches(isRandom: false))
+            {
+                if (stopTrainingSignal.WaitOne(0))
+                {
+                    return;
+                }
+                NDarray predict = layer.FeedForward(data);
+                // get accuracy
+                double accuracy = GetAccuracy(validationDataset.BatchSize, predict, label);
+                // get loss
+                NDarray loss = lossFunction.GetLoss(predict, label);
+                double meanLoss = loss.mean();
+                // print
+                Console.WriteLine($"[Validation] InstantLoss: {meanLoss:0.0000} | InstantAccuracy: {accuracy:0.000}");
+            }
+        }
+
+        private double GetAccuracy(int batchSize, NDarray predict, NDarray label)
+        {
+            NDarray maxPredict = np.argmax(predict, 1);
+            NDarray trueMap = np.equal(maxPredict.reshape(batchSize, 1), label);
+            double numTrue = trueMap.sum().asscalar<double>();
+            int numSamples = batchSize;
+            double accuracy = numTrue / numSamples;
+            return accuracy;
         }
     }
 }
