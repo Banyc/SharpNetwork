@@ -73,10 +73,17 @@ namespace NumSharpNetwork.Client.Scenarios
                 {
                     return;
                 }
-                // train
-                TrainOneEpoch(layer, stepStart, trainDataset, lossFunction, trainState, stopTrainingSignal);
-                // validate
-                Validate(layer, validationDataset, lossFunction, stopTrainingSignal);
+                {
+                    // train
+                    layer.IsTrainMode = true;
+                    ProceedOneEpoch(layer, stepStart, trainDataset, lossFunction, trainState, isSaveEveryStep: true, isBackpropagate: true, "Train", stopTrainingSignal);
+                }
+                if (validationDataset != null)
+                {
+                    // validate
+                    layer.IsTrainMode = false;
+                    ProceedOneEpoch(layer, 0, validationDataset, lossFunction, null, isSaveEveryStep: false, isBackpropagate: false, "Validation", stopTrainingSignal);
+                }
                 // reset step to 0 on the new epoch
                 stepStart = 0;
                 // save epoch number
@@ -85,7 +92,7 @@ namespace NumSharpNetwork.Client.Scenarios
             }
         }
 
-        protected void TrainOneEpoch(ILayer layer, int stepStart, DatasetLoader trainDataset, ILossFunction lossFunction, Dictionary<string, NDarray> trainState, ManualResetEvent stopTrainingSignal)
+        protected void ProceedOneEpoch(ILayer layer, int stepStart, DatasetLoader trainDataset, ILossFunction lossFunction, Dictionary<string, NDarray> trainState, bool isSaveEveryStep, bool isBackpropagate, string messagePrefix, ManualResetEvent stopTrainingSignal)
         {
             // // DEBUG ONLY
             // double previousLoss = -1;
@@ -110,10 +117,13 @@ namespace NumSharpNetwork.Client.Scenarios
                 NDarray loss = lossFunction.GetLoss(predict, label);
                 double meanLoss = loss.mean();
                 runningLoss += meanLoss;
-                NDarray lossResultGradient = lossFunction.GetLossResultGradient(predict, label);
+                if (isBackpropagate)
+                {
+                    NDarray lossResultGradient = lossFunction.GetLossResultGradient(predict, label);
 
-                // backpropagation to update weights and biases
-                layer.BackPropagate(lossResultGradient);
+                    // backpropagation to update weights and biases
+                    layer.BackPropagate(lossResultGradient);
+                }
 
                 // print info
                 if (step % 10 == 0)
@@ -123,11 +133,20 @@ namespace NumSharpNetwork.Client.Scenarios
                     // get loss
                     double meanRunningLoss = runningLoss / (step - stepStart + 1);
                     // print
-                    Console.WriteLine($"Epoch: {this.Epoch} | Step: {step} | Loss: {meanRunningLoss:0.0000} | InstantLoss: {meanLoss:0.0000} | InstantAccuracy: {accuracy:0.000}");
+                    Console.WriteLine($"[{messagePrefix}] Epoch: {this.Epoch} | Step: {step} | Loss: {meanRunningLoss:0.0000} | InstantLoss: {meanLoss:0.0000} | InstantAccuracy: {accuracy:0.000}");
                     // save states
-                    trainState["step"] = np.asarray(step);
-                    SaveState(trainState);
-                    layer.Save(this.StateFolderPath);
+                    if (trainState != null)
+                    {
+                        trainState["step"] = np.asarray(step);
+                    }
+                    if (isSaveEveryStep)
+                    {
+                        if (trainState != null)
+                        {
+                            SaveState(trainState);
+                        }
+                        layer.Save(this.StateFolderPath);
+                    }
                 }
                 step++;
             }
