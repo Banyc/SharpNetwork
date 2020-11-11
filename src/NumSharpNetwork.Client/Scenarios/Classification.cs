@@ -28,7 +28,9 @@ namespace NumSharpNetwork.Client.Scenarios
             // initialize DatasetLoader trainDataset here
             DatasetLoaderFactory datasetLoaderFactory = new DatasetLoaderFactory();
 
-            this.trainDataset = datasetLoaderFactory.GetMnist(this.batchSize);
+            // this.trainDataset = datasetLoaderFactory.GetMnist(this.batchSize);
+            this.trainDataset = datasetLoaderFactory.GetCifar10(this.batchSize);
+            this.testDataset = datasetLoaderFactory.GetCifar10Test(this.batchSize / 10);
 
             OptimizerFactory optimizerFactory = new OptimizerFactory()
             {
