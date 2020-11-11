@@ -3,13 +3,13 @@ using Numpy;
 namespace NumSharpNetwork.Shared.Optimizers
 {
     // Stochastic Gradient Descent with momentum
-    public class SGDMomentum : IOptimizer
+    public class SGDMomentum : OptimizerBase
     {
-        public double LearningRate { get; set; } = 0.01;
+        public override double LearningRate { get; set; } = 0.01;
         public double Momentum { get; set; } = 0.9;
         private NDarray Velocity { get; set; } = null;
 
-        public NDarray Optimize(NDarray weights, NDarray lossWeightGradients)
+        protected override NDarray Optimize(NDarray weights, NDarray lossWeightGradients)
         {
             if (this.Velocity == null)
             {

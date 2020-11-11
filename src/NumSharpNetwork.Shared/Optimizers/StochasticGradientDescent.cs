@@ -3,14 +3,14 @@ using Numpy;
 namespace NumSharpNetwork.Shared.Optimizers
 {
     // SGD
-    public class StochasticGradientDescent : IOptimizer
+    public class StochasticGradientDescent : OptimizerBase
     {
-        public double LearningRate { get; set; } = 0.01;
+        public override double LearningRate { get; set; } = 0.01;
         public NDarray Regularization { get; set; } = np.asarray(0.1);
         public StochasticGradientDescent()
         {
         }
-        public NDarray Optimize(NDarray weights, NDarray lossWeightGradients)
+        protected override NDarray Optimize(NDarray weights, NDarray lossWeightGradients)
         {
             // // DEBUG ONLY
             // // check
