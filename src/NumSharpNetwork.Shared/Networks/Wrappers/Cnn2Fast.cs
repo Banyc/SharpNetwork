@@ -7,15 +7,16 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
     {
         public override string Name { get; set; } = "CNN-2-Fast";
 
-        public Cnn2Fast(int height, int width, int channels, int numClasses, IOptimizer optimizer)
+        public Cnn2Fast(int height, int width, int channels, int numClasses, OptimizerFactory optimizerFactory)
         {
-            Convolution2DLayerSet convolution2DLayerSet1 = new Convolution2DLayerSet(channels, 32, optimizer, true, false, name: $"{this.Name}.Convolution2DLayerSet-1");
-            Convolution2DLayerSet convolution2DLayerSet2 = new Convolution2DLayerSet(32, 64, optimizer, true, false, name: $"{this.Name}.Convolution2DLayerSet-2");
+            Convolution2DLayerSet convolution2DLayerSet1 = new Convolution2DLayerSet(channels, 32, optimizerFactory, true, false, name: $"{this.Name}.Convolution2DLayerSet-1");
+            Convolution2DLayerSet convolution2DLayerSet2 = new Convolution2DLayerSet(32, 64, optimizerFactory, true, false, name: $"{this.Name}.Convolution2DLayerSet-2");
             FlattenLayer flatten = new FlattenLayer();
 
             int linearInputSize = (height / 1) * (width / 1) * 64;
 
-            LinearLayer linear1 = new LinearLayer(optimizer, linearInputSize, numClasses, name: $"{this.Name}.LinearLayer1");
+            IOptimizer linearLayerOptimizer = optimizerFactory.GetStochasticGradientDescentOptimizer();
+            LinearLayer linear1 = new LinearLayer(linearLayerOptimizer, linearInputSize, numClasses, name: $"{this.Name}.LinearLayer1");
 
             SoftmaxLayer softmax = new SoftmaxLayer();
 

@@ -7,14 +7,15 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
     {
         public override string Name { get; set; } = "CNN-1-Fast";
 
-        public Cnn1Fast(int height, int width, int channels, int numClasses, IOptimizer optimizer)
+        public Cnn1Fast(int height, int width, int channels, int numClasses, OptimizerFactory optimizerFactory)
         {
-            Convolution2DLayerSet convolution2DLayerSet1 = new Convolution2DLayerSet(channels, 32, optimizer, true, false, name: "Convolution2DLayerSet-1");
+            Convolution2DLayerSet convolution2DLayerSet1 = new Convolution2DLayerSet(channels, 32, optimizerFactory, true, false, name: "Convolution2DLayerSet-1");
             FlattenLayer flatten = new FlattenLayer();
 
             int linearInputSize = (height / 1) * (width / 1) * 32;
 
-            LinearLayer linear1 = new LinearLayer(optimizer, linearInputSize, numClasses, name: $"{this.Name}.LinearLayer1");
+            IOptimizer linearLayerOptimizer = optimizerFactory.GetStochasticGradientDescentOptimizer();
+            LinearLayer linear1 = new LinearLayer(linearLayerOptimizer, linearInputSize, numClasses, name: $"{this.Name}.LinearLayer1");
 
             SoftmaxLayer softmax = new SoftmaxLayer();
 

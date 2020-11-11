@@ -36,11 +36,12 @@ namespace NumSharpNetwork.Client.Scenarios
                 LearningRate = np.asarray(0.001)
                 // LearningRate = np.asarray(0.01)
             };
+            OptimizerFactory optimizerFactory = new OptimizerFactory();
 
             // this.layers = new ImageLinearLayers(28, 28, 1, 10, optimizer);
             // this.layers = new Cnn2(28, 28, 1, 10, optimizer);
             // this.layers = new Cnn2Fast(28, 28, 1, 10, optimizer);
-            this.layers = new Cnn1Fast(28, 28, 1, 10, optimizer);
+            this.layers = new Cnn1Fast(28, 28, 1, 10, optimizerFactory);
 
             this.StateFolderPath = $"trainings/{this.Name}/{this.layers.Name}";
         }

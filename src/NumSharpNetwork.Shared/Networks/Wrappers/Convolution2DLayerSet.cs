@@ -4,15 +4,18 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
 {
     public class Convolution2DLayerSet : NetworkWrapper
     {
-        public Convolution2DLayerSet(int inputChannels, int outputChannels, IOptimizer optimizer, bool isIm2Col, bool hasPooling, string name = "Convolution2DLayerSet")
+        public Convolution2DLayerSet(int inputChannels, int outputChannels, OptimizerFactory optimizerFactory, bool isIm2Col, bool hasPooling, string name = "Convolution2DLayerSet")
         {
             this.Name = name;
 
-            Convolution2D convolution2D = new Convolution2D(inputChannels, outputChannels, optimizer, name: $"{this.Name}.Convolution2D")
+            IOptimizer convolution2DOptimizer = optimizerFactory.GetStochasticGradientDescentOptimizer();
+            IOptimizer batchNormalizationOptimizer = optimizerFactory.GetStochasticGradientDescentOptimizer();
+
+            Convolution2D convolution2D = new Convolution2D(inputChannels, outputChannels, convolution2DOptimizer, name: $"{this.Name}.Convolution2D")
             {
                 IsIm2Col = isIm2Col
             };
-            BatchNormalization batchNormalization = new BatchNormalization(inputChannels, optimizer, name: $"{this.Name}.BatchNormalization")
+            BatchNormalization batchNormalization = new BatchNormalization(inputChannels, batchNormalizationOptimizer, name: $"{this.Name}.BatchNormalization")
             {
                 IsSpatial = true
             };
