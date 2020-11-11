@@ -7,29 +7,17 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
     {
         public override string Name { get; set; } = "three-linear-layers";
 
-        public ThreeLinearLayers()
+        public ThreeLinearLayers(OptimizerFactory optimizerFactory)
         {
-            StochasticGradientDescent optimizer1 = new StochasticGradientDescent()
-            {
-                LearningRate = 0.1
-            };
-            LinearLayer linearLayer1 = new LinearLayer(optimizer1, 10, 1000)
+            LinearLayer linearLayer1 = new LinearLayer(optimizerFactory, 10, 1000)
             {
                 Name = "linear-layer-1"
             };
-            StochasticGradientDescent optimizer2 = new StochasticGradientDescent()
-            {
-                LearningRate = 0.1
-            };
-            LinearLayer linearLayer2 = new LinearLayer(optimizer2, 1000, 500)
+            LinearLayer linearLayer2 = new LinearLayer(optimizerFactory, 1000, 500)
             {
                 Name = "linear-layer-2"
             };
-            StochasticGradientDescent optimizer3 = new StochasticGradientDescent()
-            {
-                LearningRate = 0.1
-            };
-            LinearLayer linearLayer3 = new LinearLayer(optimizer3, 500, 1)
+            LinearLayer linearLayer3 = new LinearLayer(optimizerFactory, 500, 1)
             {
                 Name = "linear-layer-3"
             };

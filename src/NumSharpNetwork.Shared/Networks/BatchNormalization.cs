@@ -23,7 +23,8 @@ namespace NumSharpNetwork.Shared.Networks
         public string Name { get; set; }
         public bool IsTrainMode { get; set; } = true;
         // public int InputChannels { get; set; }
-        private IOptimizer Optimizer { get; set; }
+        private IOptimizer GammaOptimizer { get; set; }
+        private IOptimizer BetaOptimizer { get; set; }
         public double Momentum { get; set; } = 0.9;
         public bool IsSpatial { get; set; } = false;
 
@@ -37,13 +38,14 @@ namespace NumSharpNetwork.Shared.Networks
         // in case variance being zero
         private double Epsilon { get; set; } = 0.00001;
 
-
         private BatchNormalizationRecord Record { get; set; } = new BatchNormalizationRecord();
 
-        public BatchNormalization(int inputChannels, IOptimizer optimizer, string name = "BatchNormalization")
+
+        public BatchNormalization(int inputChannels, OptimizerFactory optimizerFactory, string name = "BatchNormalization")
         {
             // this.InputChannels = inputChannels;
-            this.Optimizer = optimizer;
+            this.GammaOptimizer = optimizerFactory.GetOptimizer();
+            this.BetaOptimizer = optimizerFactory.GetOptimizer();
             this.Name = name;
 
             this.Gamma = np.ones(inputChannels);
@@ -251,8 +253,8 @@ namespace NumSharpNetwork.Shared.Networks
             // self.gamma = self.optimizer.optim(self.gamma, dgamma)
             // self.beta = self.optimizer.optim(self.beta, dbeta)
 
-            this.Beta = this.Optimizer.Optimize(this.Beta, dbeta);
-            this.Gamma = this.Optimizer.Optimize(this.Gamma, dgamma);
+            this.Beta = this.BetaOptimizer.Optimize(this.Beta, dbeta);
+            this.Gamma = this.GammaOptimizer.Optimize(this.Gamma, dgamma);
 
             return dx;
         }

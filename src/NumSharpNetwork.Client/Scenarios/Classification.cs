@@ -30,7 +30,10 @@ namespace NumSharpNetwork.Client.Scenarios
 
             this.trainDataset = datasetLoaderFactory.GetMnist(this.batchSize);
 
-            OptimizerFactory optimizerFactory = new OptimizerFactory();
+            OptimizerFactory optimizerFactory = new OptimizerFactory()
+            {
+                Type = OptimizerType.SGDMomentum
+            };
 
             // this.layers = new ImageLinearLayers(28, 28, 1, 10, optimizerFactory);
             // this.layers = new Cnn2(28, 28, 1, 10, optimizerFactory);

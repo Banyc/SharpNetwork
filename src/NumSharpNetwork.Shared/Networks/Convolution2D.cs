@@ -56,14 +56,16 @@ namespace NumSharpNetwork.Shared.Networks
 
         // Biases.shape = [outputChannels]
         public NDarray Biases { get; set; }
-        public IOptimizer Optimizer { get; set; }
+        public IOptimizer WeightsOptimizer { get; set; }
+        public IOptimizer BiasesOptimizer { get; set; }
         private Convolution2DRecord Record { get; set; } = new Convolution2DRecord();
 
-        public Convolution2D(int inputChannels, int outputChannels, IOptimizer optimizer, int kernelSize = 3, int stride = 1, double weightScale = 0.001d, string name = "convolution2D")
+        public Convolution2D(int inputChannels, int outputChannels, OptimizerFactory optimizerFactory, int kernelSize = 3, int stride = 1, double weightScale = 0.001d, string name = "convolution2D")
         {
             this.KernelSize = kernelSize;
             this.Stride = stride;
-            this.Optimizer = optimizer;
+            this.WeightsOptimizer = optimizerFactory.GetOptimizer();
+            this.BiasesOptimizer = optimizerFactory.GetOptimizer();
             this.Name = name;
 
             this.FilterWeights = np.random.randn(outputChannels, inputChannels, kernelSize, kernelSize) * weightScale;
@@ -250,8 +252,8 @@ namespace NumSharpNetwork.Shared.Networks
             NDarray lossBiasesGradient = np.sum(lossResultGradient, new int[] { 0, 2, 3 });
 
             // update
-            this.FilterWeights = this.Optimizer.Optimize(this.FilterWeights, lossWeightsGradient);
-            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient);
+            this.FilterWeights = this.WeightsOptimizer.Optimize(this.FilterWeights, lossWeightsGradient);
+            this.Biases = this.BiasesOptimizer.Optimize(this.Biases, lossBiasesGradient);
 
             return lossInputGradient;
         }

@@ -6,6 +6,7 @@ using Numpy;
 using NumSharpNetwork.Shared.LossFunctions;
 using NumSharpNetwork.Shared.Networks;
 using NumSharpNetwork.Shared.Networks.Wrappers;
+using NumSharpNetwork.Shared.Optimizers;
 
 namespace NumSharpNetwork.Client.Scenarios
 {
@@ -22,7 +23,12 @@ namespace NumSharpNetwork.Client.Scenarios
             this.weights = np.random.randn(10);
             this.batchSize = 200;
 
-            this.layers = new ThreeLinearLayers();
+            OptimizerFactory optimizerFactory = new OptimizerFactory()
+            {
+                Type = OptimizerType.StochasticGradientDescent
+            };
+
+            this.layers = new ThreeLinearLayers(optimizerFactory);
 
             this.StateFolderPath = $"trainings/{this.Name}/{this.layers.Name}";
         }

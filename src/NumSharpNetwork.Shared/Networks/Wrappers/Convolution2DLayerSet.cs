@@ -8,14 +8,11 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
         {
             this.Name = name;
 
-            IOptimizer convolution2DOptimizer = optimizerFactory.GetStochasticGradientDescentOptimizer();
-            IOptimizer batchNormalizationOptimizer = optimizerFactory.GetStochasticGradientDescentOptimizer();
-
-            Convolution2D convolution2D = new Convolution2D(inputChannels, outputChannels, convolution2DOptimizer, name: $"{this.Name}.Convolution2D")
+            Convolution2D convolution2D = new Convolution2D(inputChannels, outputChannels, optimizerFactory, name: $"{this.Name}.Convolution2D")
             {
                 IsIm2Col = isIm2Col
             };
-            BatchNormalization batchNormalization = new BatchNormalization(inputChannels, batchNormalizationOptimizer, name: $"{this.Name}.BatchNormalization")
+            BatchNormalization batchNormalization = new BatchNormalization(inputChannels, optimizerFactory, name: $"{this.Name}.BatchNormalization")
             {
                 IsSpatial = true
             };

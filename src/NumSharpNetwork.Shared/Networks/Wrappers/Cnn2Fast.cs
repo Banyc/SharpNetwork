@@ -15,8 +15,7 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
 
             int linearInputSize = (height / 1) * (width / 1) * 64;
 
-            IOptimizer linearLayerOptimizer = optimizerFactory.GetStochasticGradientDescentOptimizer();
-            LinearLayer linear1 = new LinearLayer(linearLayerOptimizer, linearInputSize, numClasses, name: $"{this.Name}.LinearLayer1");
+            LinearLayer linear1 = new LinearLayer(optimizerFactory, linearInputSize, numClasses, name: $"{this.Name}.LinearLayer1");
 
             SoftmaxLayer softmax = new SoftmaxLayer();
 

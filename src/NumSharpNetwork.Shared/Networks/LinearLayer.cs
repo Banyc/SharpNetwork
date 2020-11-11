@@ -23,7 +23,8 @@ namespace NumSharpNetwork.Shared.Networks
         public NDarray Weights { get; set; }
         // Biases.shape := [outputSize]
         public NDarray Biases { get; set; }
-        public IOptimizer Optimizer { get; set; }
+        public IOptimizer WeightsOptimizer { get; set; }
+        public IOptimizer BiasesOptimizer { get; set; }
 
         // number of nodes connecting to a node in this layer
         public int InputSize { get; set; }
@@ -33,9 +34,10 @@ namespace NumSharpNetwork.Shared.Networks
         // the latest records of parameters and results of feedforward process
         private LinearLayerRecord Record { get; } = new LinearLayerRecord();
 
-        public LinearLayer(IOptimizer optimizer, int inputSize, int outputSize, double weightScale = 0.001d, string name = "linearLayer")
+        public LinearLayer(OptimizerFactory optimizerFactory, int inputSize, int outputSize, double weightScale = 0.001d, string name = "linearLayer")
         {
-            this.Optimizer = optimizer;
+            this.WeightsOptimizer = optimizerFactory.GetOptimizer();
+            this.BiasesOptimizer = optimizerFactory.GetOptimizer();
 
             this.InputSize = inputSize;
             this.OutputSize = outputSize;
@@ -79,9 +81,8 @@ namespace NumSharpNetwork.Shared.Networks
             // // lossInputGradient.shape := [batchSize, inputSize]
             // NDarray lossInputGradient = np.matmul(lossResultGradient, this.Record.Weights.T);
 
-            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient);
-            // this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient, isAddRegularization: true);
-            this.Weights = this.Optimizer.Optimize(this.Weights, lossWeightsGradient);
+            this.Biases = this.BiasesOptimizer.Optimize(this.Biases, lossBiasesGradient);
+            this.Weights = this.WeightsOptimizer.Optimize(this.Weights, lossWeightsGradient);
 
             return lossInputGradient;
         }

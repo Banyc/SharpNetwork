@@ -69,8 +69,8 @@ namespace NumSharpNetwork.Shared.Networks
             NDarray lossWeightsGradient = lossAlignedWeightsGradient.reshape(this.OutputChannels, this.InputChannels, this.FilterHeight, this.FilterWidth);
 
             // update
-            this.Biases = this.Optimizer.Optimize(this.Biases, lossBiasesGradient);
-            this.FilterWeights = this.Optimizer.Optimize(this.FilterWeights, lossWeightsGradient);
+            this.Biases = this.BiasesOptimizer.Optimize(this.Biases, lossBiasesGradient);
+            this.FilterWeights = this.WeightsOptimizer.Optimize(this.FilterWeights, lossWeightsGradient);
 
             return lossInputGradient;
         }
