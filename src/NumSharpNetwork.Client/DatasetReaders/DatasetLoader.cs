@@ -10,6 +10,8 @@ namespace NumSharpNetwork.Client.DatasetReaders
         public IDatasetReader Dataset { get; set; }
         public int BatchSize { get; set; }
         private Random Random { get; set; } = new Random();
+        // private NextFreshInteger NextFreshInteger { get; set; } = new NextFreshInteger();
+
         public DatasetLoader(IDatasetReader dataset, int batchSize)
         {
             this.Dataset = dataset;
@@ -18,6 +20,9 @@ namespace NumSharpNetwork.Client.DatasetReaders
 
         public IEnumerable<(NDarray dataBatches, NDarray embeddedLabelBatches)> GetBatches(int startStep = 0, bool isRandom = true)
         {
+            // generate non-overlap index
+            NextFreshInteger nextFreshInteger = new NextFreshInteger(0, this.Dataset.Dataset.Count);
+
             int numBatches = this.Dataset.Dataset.Count / this.BatchSize;
             int batchIndex;
             for (batchIndex = startStep; batchIndex < numBatches; batchIndex++)
@@ -36,7 +41,8 @@ namespace NumSharpNetwork.Client.DatasetReaders
                     }
                     else
                     {
-                        int randomIndex = this.Random.Next(0, this.Dataset.Dataset.Count);
+                        // int randomIndex = this.Random.Next(0, this.Dataset.Dataset.Count);
+                        int randomIndex = nextFreshInteger.GetNextFreshInteger();
                         (data, classIndex) = this.Dataset.GetImageLabelPair(randomIndex);
                     }
                     dataBatches[$"{dataIndexOffset}"] = data;
