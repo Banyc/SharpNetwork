@@ -81,7 +81,7 @@ namespace NumSharpNetwork.Client.Scenarios
                 {
                     // train
                     layer.IsTrainMode = true;
-                    ProceedOneEpoch(layer, stepStart, trainDataset, lossFunction, trainState, isSaveEveryStep: true, isBackpropagate: true, "Train", stopTrainingSignal);
+                    ProceedOneEpoch(layer, stepStart, trainDataset, lossFunction, trainState, isSaveEveryStep: false, isBackpropagate: true, "Train", stopTrainingSignal);
                 }
                 if (validationDataset != null)
                 {
@@ -91,9 +91,12 @@ namespace NumSharpNetwork.Client.Scenarios
                 }
                 // reset step to 0 on the new epoch
                 stepStart = 0;
+                // notice: even the stop signal is fired, the saving process is still proceeded
                 // save epoch number
                 trainState["epoch"] = np.asarray(this.Epoch);
                 SaveState(trainState);
+                // save layer state
+                layer.Save(this.StateFolderPath);
             }
         }
 
