@@ -11,13 +11,15 @@ namespace NumSharpNetwork.Shared.Optimizers
     public class OptimizerFactory
     {
         public OptimizerType Type { get; set; } = OptimizerType.StochasticGradientDescent;
+        public double? LearningRate { get; set; } = null;
+        public double? Momentum { get; set; } = null;
 
         public IOptimizer GetOptimizer()
         {
             return GetOptimizer(this.Type);
         }
 
-        public static IOptimizer GetOptimizer(OptimizerType type)
+        public IOptimizer GetOptimizer(OptimizerType type)
         {
             return type switch
             {
@@ -27,20 +29,27 @@ namespace NumSharpNetwork.Shared.Optimizers
             };
         }
 
-        public static StochasticGradientDescent GetStochasticGradientDescentOptimizer()
+        public StochasticGradientDescent GetStochasticGradientDescentOptimizer()
         {
-            StochasticGradientDescent optimizer = new StochasticGradientDescent()
+            StochasticGradientDescent optimizer = new StochasticGradientDescent();
+            if (this.LearningRate != null)
             {
-                // LearningRate = 0.0001
-                LearningRate = 0.001
-                // LearningRate = 0.01
-            };
+                optimizer.LearningRate = this.LearningRate.Value;
+            }
             return optimizer;
         }
 
-        public static SGDMomentum GetSGDMomentumOptimizer()
+        public SGDMomentum GetSGDMomentumOptimizer()
         {
             SGDMomentum sGDMomentum = new SGDMomentum();
+            if (this.LearningRate != null)
+            {
+                sGDMomentum.LearningRate = this.LearningRate.Value;
+            }
+            if (this.Momentum != null)
+            {
+                sGDMomentum.Momentum = this.Momentum.Value;
+            }
             return sGDMomentum;
         }
     }

@@ -28,19 +28,20 @@ namespace NumSharpNetwork.Client.Scenarios
             // initialize DatasetLoader trainDataset here
             DatasetLoaderFactory datasetLoaderFactory = new DatasetLoaderFactory();
 
-            // this.trainDataset = datasetLoaderFactory.GetMnist(this.batchSize);
-            this.trainDataset = datasetLoaderFactory.GetCifar10(this.batchSize);
-            this.testDataset = datasetLoaderFactory.GetCifar10Test(this.batchSize / 10);
+            this.trainDataset = datasetLoaderFactory.GetMnist(this.batchSize);
+            // this.trainDataset = datasetLoaderFactory.GetCifar10(this.batchSize);
+            // this.testDataset = datasetLoaderFactory.GetCifar10Test(this.batchSize / 10);
 
             OptimizerFactory optimizerFactory = new OptimizerFactory()
             {
-                Type = OptimizerType.StochasticGradientDescent
+                Type = OptimizerType.StochasticGradientDescent,
+                LearningRate = 0.001,
             };
 
             // this.layers = new ImageLinearLayers(
             // this.layers = new Cnn2(
-            // this.layers = new Cnn2Fast(
-            this.layers = new Cnn1Fast(
+            this.layers = new Cnn2Fast(
+            // this.layers = new Cnn1Fast(
                 this.trainDataset.Dataset.Height,
                 this.trainDataset.Dataset.Width,
                 this.trainDataset.Dataset.Channels,
