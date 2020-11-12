@@ -25,7 +25,7 @@ namespace NumSharpNetwork.Shared.Networks
 
     public partial class Convolution2D : ILayer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "Convolution2D";
         public bool IsTrainMode { get; set; }
         public int KernelSize { get; set; }
         public int Stride { get; set; }
@@ -306,6 +306,11 @@ namespace NumSharpNetwork.Shared.Networks
                 {this.TopLeftPaddingSize}:{-this.BottomRightPaddingSize}, 
                 {this.TopLeftPaddingSize}:{-this.BottomRightPaddingSize}"
             ];
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Name} [{this.InputChannels}, {this.OutputChannels}]";
         }
     }
 }

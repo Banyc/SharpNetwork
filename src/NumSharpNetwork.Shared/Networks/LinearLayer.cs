@@ -17,7 +17,7 @@ namespace NumSharpNetwork.Shared.Networks
 
     public class LinearLayer : ILayer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "LinearLayer";
         public bool IsTrainMode { get; set; } = true;
         // Weights.shape := [inputSize, outputSize]
         public NDarray Weights { get; set; }
@@ -123,6 +123,11 @@ namespace NumSharpNetwork.Shared.Networks
             {
                 this.Biases = np.load(biasesPath);
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Name} [{this.InputSize}, {this.OutputSize}]";
         }
     }
 }

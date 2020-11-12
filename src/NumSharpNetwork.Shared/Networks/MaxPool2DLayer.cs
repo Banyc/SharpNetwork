@@ -5,7 +5,7 @@ namespace NumSharpNetwork.Shared.Networks
 {
     public class MaxPool2DLayer : ILayer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "MaxPool2D";
         public bool IsTrainMode { get; set; }
         public int KernelSize { get; set; }
         public int Stride { get; set; }
@@ -111,6 +111,11 @@ namespace NumSharpNetwork.Shared.Networks
 
         public void Save(string folderPath)
         {
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Name} [{this.KernelSize}, {this.Stride}]";
         }
     }
 }

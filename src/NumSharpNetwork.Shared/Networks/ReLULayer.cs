@@ -4,7 +4,7 @@ namespace NumSharpNetwork.Shared.Networks
 {
     public class ReLULayer : ILayer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "ReLU";
         public bool IsTrainMode { get; set; }
         private NDarray PreviousInput { get; set; }
 
@@ -35,6 +35,11 @@ namespace NumSharpNetwork.Shared.Networks
 
         public void Save(string folderPath)
         {
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Name}";
         }
     }
 }

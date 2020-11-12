@@ -4,7 +4,7 @@ namespace NumSharpNetwork.Shared.Networks
 {
     public class SigmoidLayer : ILayer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "Sigmoid";
         public bool IsTrainMode { get; set; }
         public NDarray PreviousInput { get; set; }
         public NDarray PreviousResult { get; set; }
@@ -37,6 +37,11 @@ namespace NumSharpNetwork.Shared.Networks
         private NDarray Sigmoid(NDarray input)
         {
             return 1.0 / (1 + np.exp(-input));
+        }
+        
+        public override string ToString()
+        {
+            return $"{this.Name}";
         }
     }
 }

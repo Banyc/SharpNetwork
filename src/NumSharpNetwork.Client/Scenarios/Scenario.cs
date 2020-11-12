@@ -48,6 +48,11 @@ namespace NumSharpNetwork.Client.Scenarios
 
         protected void Train(ILayer layer, ILossFunction lossFunction, DatasetLoader trainDataset, DatasetLoader validationDataset, int numEpochs, ManualResetEvent stopTrainingSignal)
         {
+            // print layer info
+            Console.WriteLine("Layer info {");
+            Console.WriteLine(layer);
+            Console.WriteLine("} Layer info");
+
             // load state
             Dictionary<string, NDarray> trainState = LoadState();
             layer.Load(this.StateFolderPath);

@@ -5,7 +5,7 @@ namespace NumSharpNetwork.Shared.Networks
 {
     public class SoftmaxLayer : ILayer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "Softmax";
         public bool IsTrainMode { get; set; }
         private NDarray PreviousResult { get; set; }
 
@@ -76,6 +76,11 @@ namespace NumSharpNetwork.Shared.Networks
 
         public void Save(string folderPath)
         {
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Name}";
         }
     }
 }

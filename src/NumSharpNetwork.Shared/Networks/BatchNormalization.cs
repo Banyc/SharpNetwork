@@ -20,7 +20,7 @@ namespace NumSharpNetwork.Shared.Networks
     // Warning: this implementation might encounter overflow issuses
     public class BatchNormalization : ILayer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "BatchNormalization";
         public bool IsTrainMode { get; set; } = true;
         // public int InputChannels { get; set; }
         private IOptimizer GammaOptimizer { get; set; }
@@ -257,6 +257,11 @@ namespace NumSharpNetwork.Shared.Networks
             this.Gamma = this.GammaOptimizer.Optimize(this.Gamma, dgamma);
 
             return dx;
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Name} [{this.Gamma.shape[0]}]";
         }
     }
 }

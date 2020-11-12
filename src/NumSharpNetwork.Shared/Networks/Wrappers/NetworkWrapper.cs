@@ -1,3 +1,4 @@
+using System.Text;
 using System.Collections.Generic;
 using Numpy;
 
@@ -74,6 +75,21 @@ namespace NumSharpNetwork.Shared.Networks.Wrappers
             {
                 layer.Load(folderPath);
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            int i;
+            for (i = 0; i < this.Layers.Count; i++)
+            {
+                stringBuilder.Append(this.Layers[i].ToString());
+                if (i + 1 < this.Layers.Count)
+                {
+                    stringBuilder.Append("\n");
+                }
+            }
+            return stringBuilder.ToString();
         }
     }
 }

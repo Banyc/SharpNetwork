@@ -4,7 +4,7 @@ namespace NumSharpNetwork.Shared.Networks
 {
     public class FlattenLayer : ILayer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "Flatten";
         public bool IsTrainMode { get; set; }
         public NDarray PreviousInput { get; set; }
 
@@ -36,6 +36,11 @@ namespace NumSharpNetwork.Shared.Networks
 
         public void Save(string folderPath)
         {
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Name}";
         }
     }
 }
