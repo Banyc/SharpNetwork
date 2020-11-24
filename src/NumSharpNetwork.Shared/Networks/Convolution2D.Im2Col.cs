@@ -28,8 +28,7 @@ namespace NumSharpNetwork.Shared.Networks
             // [batchSize * resultHeight * resultWidth, outputChannels]
             NDarray multiply = np.dot(columns, alignedWeights.T);
             multiply = multiply.reshape(batchSize, resultHeight, resultWidth, this.OutputChannels);
-            // multiply = multiply.transpose(0, 3, 1, 2);
-            multiply = np.transpose(multiply, new int[] { 0, 3, 1, 2 });
+            multiply = multiply.transpose(0, 3, 1, 2);
 
             NDarray result =
                 multiply.reshape(batchSize, OutputChannels, resultHeight, resultWidth) +
@@ -55,8 +54,7 @@ namespace NumSharpNetwork.Shared.Networks
 
             // d_loss / d_multiply
             NDarray alignedWeights = this.Record.Weights.reshape(this.OutputChannels, -1);
-            // NDarray lossMultiplyGradient = lossResultGradient.transpose(0, 2, 3, 1);
-            NDarray lossMultiplyGradient = np.transpose(lossResultGradient, new int[] { 0, 2, 3, 1 });
+            NDarray lossMultiplyGradient = lossResultGradient.transpose(0, 2, 3, 1);
             lossMultiplyGradient = lossMultiplyGradient.reshape(batchSize * resultHeight * resultWidth, this.OutputChannels);
 
             // d_loss / d_columns

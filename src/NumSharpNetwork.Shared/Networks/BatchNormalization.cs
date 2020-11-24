@@ -202,7 +202,7 @@ namespace NumSharpNetwork.Shared.Networks
             int batchSize = input.shape[0];
             int inputChannels = input.shape[1];
             // transposed.shape = [batchSize, height, width, inputChannels]
-            NDarray transposed = np.transpose(input, new int[] { 0, 2, 3, 1 });
+            NDarray transposed = input.transpose(0, 2, 3, 1);
             return transposed.reshape(-1, inputChannels);
         }
 
@@ -214,7 +214,7 @@ namespace NumSharpNetwork.Shared.Networks
             int width = inputShape[3];
 
             NDarray transposed = compressedInput.reshape(batchSize, height, width, inputChannels);
-            NDarray expandedInput = np.transpose(transposed, new int[] { 0, 3, 1, 2 });
+            NDarray expandedInput = transposed.transpose(0, 3, 1, 2);
             return expandedInput;
         }
 
